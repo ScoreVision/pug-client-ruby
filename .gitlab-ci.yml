@@ -1,0 +1,75 @@
+# GitLab CI/CD Pipeline for pug-client-ruby
+# Runs tests and generates YARD documentation for GitLab Pages
+
+# Default configuration applied to all jobs
+default:
+  image: ruby:3.4
+  # Cache gems between builds for faster pipeline execution
+  cache:
+    paths:
+      - vendor/bundle
+  # Common setup for all jobs
+  before_script:
+    - ruby -v
+    - gem install bundler --no-document
+    - bundle config set --local path 'vendor/bundle'
+    - bundle install --jobs $(nproc)
+
+# Define pipeline stages
+stages:
+  - test
+  - deploy
+
+# Run RSpec tests
+test:
+  stage: test
+  script:
+    # Run RSpec with multiple formatters: documentation for console, JUnit for GitLab
+    - bundle exec rspec --format documentation --format RspecJunitFormatter --out rspec.xml
+  artifacts:
+    reports:
+      junit: rspec.xml
+    paths:
+      - rspec.xml
+    expire_in: 7 days
+    when: always
+  # Run tests on all branches and merge requests
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH
+
+# Optional: Run RuboCop linter
+lint:
+  stage: test
+  script:
+    # Run RuboCop with JUnit formatter for GitLab integration
+    - bundle exec rubocop --format progress --format junit --out rubocop.xml
+  artifacts:
+    reports:
+      junit: rubocop.xml
+    paths:
+      - rubocop.xml
+    expire_in: 7 days
+    when: always
+  allow_failure: true
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH
+
+# Generate YARD documentation and deploy to GitLab Pages
+# This job MUST be named "pages" for GitLab Pages to work
+pages:
+  stage: deploy
+  # Mark this as a Pages deployment job
+  pages: true
+  script:
+    # Generate YARD documentation to doc/ directory
+    - bundle exec yard doc
+    # GitLab Pages requires artifacts in a "public/" directory
+    - mv doc public
+  artifacts:
+    paths:
+      - public
+  # Only deploy to Pages from the main branch
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

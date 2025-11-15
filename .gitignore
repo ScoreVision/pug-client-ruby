@@ -8,6 +8,10 @@ vendor/bundle/
 
 # RSpec
 .rspec_status
+rspec.xml
+
+# RuboCop
+rubocop.xml
 
 # Temporary files
 *.swp
