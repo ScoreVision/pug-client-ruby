@@ -1,0 +1,22 @@
+# Gem packaging
+*.gem
+.bundle/
+vendor/bundle/
+
+# Test coverage
+/coverage/
+
+# RSpec
+.rspec_status
+
+# Temporary files
+*.swp
+*~
+.DS_Store
+
+# yard
+.yardoc/
+
+# Example environment files (contain credentials)
+example/env.sh
+example/.env

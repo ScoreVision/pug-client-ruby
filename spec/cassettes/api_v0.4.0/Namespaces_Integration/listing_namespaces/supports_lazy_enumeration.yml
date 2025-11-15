@@ -1,0 +1,149 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://fantagio-staging.auth0.com/oauth/token
+    body:
+      encoding: UTF-8
+      string: '{"client_id":"<PUG_CLIENT_ID>","client_secret":"<PUG_CLIENT_SECRET>","audience":"https://staging-api.fantag.io/","grant_type":"client_credentials"}'
+    headers:
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Faraday v2.14.0
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 15 Nov 2025 06:00:17 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Cf-Ray:
+      - 99ec870638903508-SMF
+      Cf-Cache-Status:
+      - DYNAMIC
+      Cache-Control:
+      - no-store
+      Set-Cookie:
+      - _cfuvid=Rswvd1GDnatPbwCthJJEChag5fKFHtPvyj6aiASySsQ-1763186417790-0.0.1.1-604800000;
+        path=/; domain=.auth0.com; HttpOnly; Secure; SameSite=None
+      - did=s%3Av0%3A5f45ad82-1e04-45a7-825d-a5aadcf48a68.pebpx34q74kM9toliWQKIX9w1%2FX0FE6DW5waTXYDzBc;
+        Path=/; Expires=Sun, 15 Nov 2026 12:00:17 GMT; HttpOnly; Secure; SameSite=None
+      - did_compat=s%3Av0%3A5f45ad82-1e04-45a7-825d-a5aadcf48a68.pebpx34q74kM9toliWQKIX9w1%2FX0FE6DW5waTXYDzBc;
+        Path=/; Expires=Sun, 15 Nov 2026 12:00:17 GMT; HttpOnly; Secure
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Vary:
+      - Accept-Encoding, Origin
+      Pragma:
+      - no-cache
+      X-Auth0-L:
+      - '0.049'
+      X-Auth0-Requestid:
+      - 94a4f8e828f3d4ea931d
+      X-Content-Type-Options:
+      - nosniff
+      X-Ratelimit-Limit:
+      - '100'
+      X-Ratelimit-Remaining:
+      - '99'
+      X-Ratelimit-Reset:
+      - '1763186419'
+      Server:
+      - cloudflare
+      Alt-Svc:
+      - h3=":443"; ma=86400
+    body:
+      encoding: ASCII-8BIT
+      string: '{"access_token":"<ACCESS_TOKEN>","scope":"https://api.fantag.io/namespaces/fantag-capture-app-staging/videos
+        https://api.fantag.io/namespaces/zach-staging/videos https://api.fantag.io/namespaces/zach-loadtest/videos
+        namespaces:fantag-capture-app-staging:videos:* namespaces:fantag-capture-app-staging:campaigns:*
+        namespaces:scott-staging:campaigns:* namespaces:scott-staging:videos:* namespaces:zach-staging:videos:*
+        namespaces:zach-staging:campaigns:* namespaces:test-namespace:videos:* namespaces:test-namespace:campaigns:*
+        system:namespaces:* system:clients:* system:videos:* system:campaigns:* namespaces:dan-staging:campaigns:*
+        system:webhooks:* namespaces:jwn-jwn:videos:* namespaces:jwn-jwn:campaigns:*
+        namespaces:nogrady-casa:videos:* namespaces:nogrady-casa:campaigns:* namespaces:july8-test:videos:*
+        namespaces:july8-test:campaigns:* namespaces:sv-admin-staging:videos:* namespaces:sv-admin-staging:campaigns:*
+        namespaces:sv-user-staging:videos:* namespaces:sv-user-staging:campaigns:*
+        system:playlists:* namespaces:jwn-jwn:playlists:* namespaces:jwn-jwn:webhooks:*
+        namespaces:fantag-capture-app-staging:playlists:* namespaces:test-namespace-1596214901.498939:videos:*
+        namespaces:test-namespace-1596214901.498939:campaigns:* namespaces:gauge-test:videos:*
+        namespaces:gauge-test:campaigns:* namespaces:gauge-test:playlists:* system:livestreams:*
+        namespaces:my-app-sandbox:videos:* namespaces:my-app-sandbox:livestreams:*
+        namespaces:sv-admin-staging:livestreams:* namespaces:sv-user-staging:livestreams:*
+        namespaces:my-app-sandbox:campaigns:* namespaces:richard-staging:campaigns:*
+        namespaces:richard-staging:videos:* namespaces:richard-staging:webhooks:*
+        namespaces:richard-staging:playlists:* namespaces:richard-staging:livestreams:*
+        system:simulcasttargets:* namespaces:zach-staging:livestreams:* namespaces:zach-staging:simulcasttargets:*
+        namespaces:gauge-test:livestreams:* namespaces:gauge-test:simulcasttargets:*","expires_in":1209599,"token_type":"Bearer"}'
+  recorded_at: Sat, 15 Nov 2025 06:00:17 GMT
+- request:
+    method: get
+    uri: https://staging-api.video.scorevision.com/namespaces?page%5Bsize%5D=10
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/vnd.api+json
+      Content-Type:
+      - application/vnd.api+json
+      User-Agent:
+      - PugClient Ruby Gem 0.1.0
+      Authorization:
+      - "<AUTHORIZATION>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Expose-Headers:
+      - ''
+      Cache-Control:
+      - max-age=0, private, must-revalidate
+      Content-Length:
+      - '4012'
+      Content-Type:
+      - application/vnd.api+json; charset=utf-8
+      Date:
+      - Sat, 15 Nov 2025 06:00:17 GMT
+      Server:
+      - Cowboy
+      X-Cloud-Trace-Context:
+      - d40ba69d5a676f73b3ac01f067e76faf/4455f7f1b3a7eed5;o=0
+      X-Request-Id:
+      - GHgYtJDXnsLb6sMABfkh
+      Via:
+      - 1.1 google
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+    body:
+      encoding: UTF-8
+      string: '{"data":[{"attributes":{"metadata":{"annotations":{},"createdAt":"2022-03-01T16:29:01Z","labels":{},"modifiedAt":"2022-03-01T16:29:01Z","name":null}},"id":"alian","links":{"self":"https://staging-api.video.scorevision.com/namespaces/alian"},"type":"namespaces"},{"attributes":{"metadata":{"annotations":{},"createdAt":"2022-02-23T15:22:42Z","labels":{"sv-org-id":"485","sv-real-customer":"true"},"modifiedAt":"2022-02-23T15:22:42Z","name":"San
+        Diego Strike Force"}},"id":"EVAL_a1e20159-b146-4f78-9ff9-70b7cf12bcef","links":{"self":"https://staging-api.video.scorevision.com/namespaces/EVAL_a1e20159-b146-4f78-9ff9-70b7cf12bcef"},"type":"namespaces"},{"attributes":{"metadata":{"annotations":{},"createdAt":"2022-02-10T20:48:24Z","labels":{"sv-org-id":"647","sv-real-customer":"true"},"modifiedAt":"2022-02-10T20:48:24Z","name":"Strake
+        Jesuit Group"}},"id":"DEVELOPMENT_0780414c-1c9f-4a55-8fda-23373a6d6047","links":{"self":"https://staging-api.video.scorevision.com/namespaces/DEVELOPMENT_0780414c-1c9f-4a55-8fda-23373a6d6047"},"type":"namespaces"},{"attributes":{"metadata":{"annotations":{},"createdAt":"2022-01-28T21:18:44Z","labels":{"sv-org-id":"643","sv-real-customer":"true"},"modifiedAt":"2022-01-28T21:18:44Z","name":"Practice
+        Test"}},"id":"DEVELOPMENT_f00b411e-a7c0-47aa-9c6a-f7f3caa0b7c6","links":{"self":"https://staging-api.video.scorevision.com/namespaces/DEVELOPMENT_f00b411e-a7c0-47aa-9c6a-f7f3caa0b7c6"},"type":"namespaces"},{"attributes":{"metadata":{"annotations":{},"createdAt":"2022-01-12T20:02:02Z","labels":{"sv-org-id":"630","sv-real-customer":"true"},"modifiedAt":"2022-01-12T20:02:02Z","name":"Alec''s
+        Emporium"}},"id":"DEVELOPMENT_4c1c355a-0b63-4b70-8222-e6bdfdeab5d5","links":{"self":"https://staging-api.video.scorevision.com/namespaces/DEVELOPMENT_4c1c355a-0b63-4b70-8222-e6bdfdeab5d5"},"type":"namespaces"},{"attributes":{"metadata":{"annotations":{},"createdAt":"2022-01-06T19:04:30Z","labels":{"sv-org-id":"631","sv-real-customer":"true"},"modifiedAt":"2022-01-06T19:04:30Z","name":"Testing
+        Wrestling"}},"id":"DEVELOPMENT_d6f2e59f-9587-4772-b076-f85eb931c636","links":{"self":"https://staging-api.video.scorevision.com/namespaces/DEVELOPMENT_d6f2e59f-9587-4772-b076-f85eb931c636"},"type":"namespaces"},{"attributes":{"metadata":{"annotations":{},"createdAt":"2022-01-03T23:34:30Z","labels":{"sv-org-id":"473011407","sv-real-customer":"true"},"modifiedAt":"2022-01-03T23:34:30Z","name":"Org
+        without Namespace"}},"id":"TEST_4167f070-6c97-45f7-9338-793235a55996","links":{"self":"https://staging-api.video.scorevision.com/namespaces/TEST_4167f070-6c97-45f7-9338-793235a55996"},"type":"namespaces"},{"attributes":{"metadata":{"annotations":{},"createdAt":"2022-01-03T23:31:41Z","labels":{"sv-org-id":"473011407","sv-real-customer":"true"},"modifiedAt":"2022-01-03T23:31:41Z","name":"Org
+        without Namespace"}},"id":"TEST_32ebecfc-accf-4277-809e-44dc0a771004","links":{"self":"https://staging-api.video.scorevision.com/namespaces/TEST_32ebecfc-accf-4277-809e-44dc0a771004"},"type":"namespaces"},{"attributes":{"metadata":{"annotations":{},"createdAt":"2021-12-30T18:02:11Z","labels":{"sv-org-id":"634","sv-real-customer":"true"},"modifiedAt":"2021-12-30T18:02:11Z","name":"B
+        test"}},"id":"DEVELOPMENT_f01e73ec-09b4-412b-8de0-65bf7b1ef5a4","links":{"self":"https://staging-api.video.scorevision.com/namespaces/DEVELOPMENT_f01e73ec-09b4-412b-8de0-65bf7b1ef5a4"},"type":"namespaces"},{"attributes":{"metadata":{"annotations":{},"createdAt":"2021-12-29T19:25:57Z","labels":{"sv-org-id":"473011407","sv-real-customer":"true"},"modifiedAt":"2021-12-29T19:25:57Z","name":"Org
+        without Namespace"}},"id":"TEST_89e1bb25-b6ca-4c9f-98a5-0a592553838c","links":{"self":"https://staging-api.video.scorevision.com/namespaces/TEST_89e1bb25-b6ca-4c9f-98a5-0a592553838c"},"type":"namespaces"}],"jsonapi":{"version":"1.0"},"links":{"next":"http://staging-api.video.scorevision.com/namespaces?page%5Bafter%5D=MTY0MDgwNTk1Nzk3ODA1MTpURVNUXzg5ZTFiYjI1LWI2Y2EtNGM5Zi05OGE1LTBhNTkyNTUzODM4Yw&page%5Bsize%5D=10"}}'
+  recorded_at: Sat, 15 Nov 2025 06:00:18 GMT
+recorded_with: VCR 6.3.1

@@ -1,0 +1,6 @@
+--output-dir=doc
+--readme=README.md
+--markup=markdown
+--markup-provider=redcarpet
+--no-private
+lib/**/*.rb

@@ -1,0 +1,390 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://fantagio-staging.auth0.com/oauth/token
+    body:
+      encoding: UTF-8
+      string: '{"client_id":"<PUG_CLIENT_ID>","client_secret":"<PUG_CLIENT_SECRET>","audience":"https://staging-api.fantag.io/","grant_type":"client_credentials"}'
+    headers:
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Faraday v2.14.0
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 15 Nov 2025 06:00:23 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Cf-Ray:
+      - 99ec872c1f2432b4-SMF
+      Cf-Cache-Status:
+      - DYNAMIC
+      Cache-Control:
+      - no-store
+      Set-Cookie:
+      - _cfuvid=OXvpe19MLD75p1fKRRpJ9AdxCYgZSm4nEh4gxgwrUwg-1763186423832-0.0.1.1-604800000;
+        path=/; domain=.auth0.com; HttpOnly; Secure; SameSite=None
+      - did=s%3Av0%3A56f9d270-5142-4a4c-945b-55414cf44423.ep9iQK%2BNg3HLXBEZtcjWvnUuvf5WKNuyQWA3q2e20c8;
+        Path=/; Expires=Sun, 15 Nov 2026 12:00:23 GMT; HttpOnly; Secure; SameSite=None
+      - did_compat=s%3Av0%3A56f9d270-5142-4a4c-945b-55414cf44423.ep9iQK%2BNg3HLXBEZtcjWvnUuvf5WKNuyQWA3q2e20c8;
+        Path=/; Expires=Sun, 15 Nov 2026 12:00:23 GMT; HttpOnly; Secure
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Vary:
+      - Accept-Encoding, Origin
+      Pragma:
+      - no-cache
+      X-Auth0-L:
+      - '0.034'
+      X-Auth0-Requestid:
+      - 71a29e50ce2206030158
+      X-Content-Type-Options:
+      - nosniff
+      X-Ratelimit-Limit:
+      - '100'
+      X-Ratelimit-Remaining:
+      - '99'
+      X-Ratelimit-Reset:
+      - '1763186425'
+      Server:
+      - cloudflare
+      Alt-Svc:
+      - h3=":443"; ma=86400
+    body:
+      encoding: ASCII-8BIT
+      string: '{"access_token":"<ACCESS_TOKEN>","scope":"https://api.fantag.io/namespaces/fantag-capture-app-staging/videos
+        https://api.fantag.io/namespaces/zach-staging/videos https://api.fantag.io/namespaces/zach-loadtest/videos
+        namespaces:fantag-capture-app-staging:videos:* namespaces:fantag-capture-app-staging:campaigns:*
+        namespaces:scott-staging:campaigns:* namespaces:scott-staging:videos:* namespaces:zach-staging:videos:*
+        namespaces:zach-staging:campaigns:* namespaces:test-namespace:videos:* namespaces:test-namespace:campaigns:*
+        system:namespaces:* system:clients:* system:videos:* system:campaigns:* namespaces:dan-staging:campaigns:*
+        system:webhooks:* namespaces:jwn-jwn:videos:* namespaces:jwn-jwn:campaigns:*
+        namespaces:nogrady-casa:videos:* namespaces:nogrady-casa:campaigns:* namespaces:july8-test:videos:*
+        namespaces:july8-test:campaigns:* namespaces:sv-admin-staging:videos:* namespaces:sv-admin-staging:campaigns:*
+        namespaces:sv-user-staging:videos:* namespaces:sv-user-staging:campaigns:*
+        system:playlists:* namespaces:jwn-jwn:playlists:* namespaces:jwn-jwn:webhooks:*
+        namespaces:fantag-capture-app-staging:playlists:* namespaces:test-namespace-1596214901.498939:videos:*
+        namespaces:test-namespace-1596214901.498939:campaigns:* namespaces:gauge-test:videos:*
+        namespaces:gauge-test:campaigns:* namespaces:gauge-test:playlists:* system:livestreams:*
+        namespaces:my-app-sandbox:videos:* namespaces:my-app-sandbox:livestreams:*
+        namespaces:sv-admin-staging:livestreams:* namespaces:sv-user-staging:livestreams:*
+        namespaces:my-app-sandbox:campaigns:* namespaces:richard-staging:campaigns:*
+        namespaces:richard-staging:videos:* namespaces:richard-staging:webhooks:*
+        namespaces:richard-staging:playlists:* namespaces:richard-staging:livestreams:*
+        system:simulcasttargets:* namespaces:zach-staging:livestreams:* namespaces:zach-staging:simulcasttargets:*
+        namespaces:gauge-test:livestreams:* namespaces:gauge-test:simulcasttargets:*","expires_in":1209599,"token_type":"Bearer"}'
+  recorded_at: Sat, 15 Nov 2025 06:00:23 GMT
+- request:
+    method: post
+    uri: https://staging-api.video.scorevision.com/namespaces/zach-staging/videos
+    body:
+      encoding: UTF-8
+      string: '{"data":{"type":"videos","attributes":{"metadata":{"labels":{"test":"playlist1"}},"startedAt":"2025-11-15T06:00:23Z"}}}'
+    headers:
+      Accept:
+      - application/vnd.api+json
+      Content-Type:
+      - application/vnd.api+json
+      User-Agent:
+      - PugClient Ruby Gem 0.1.0
+      Authorization:
+      - "<AUTHORIZATION>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 201
+      message: Created
+    headers:
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Expose-Headers:
+      - ''
+      Cache-Control:
+      - max-age=0, private, must-revalidate
+      Content-Length:
+      - '575'
+      Content-Type:
+      - application/vnd.api+json; charset=utf-8
+      Date:
+      - Sat, 15 Nov 2025 06:00:23 GMT
+      Server:
+      - Cowboy
+      X-Cloud-Trace-Context:
+      - 8dbd0d8f937dfb3cc9b559b2e2132ca3/7b7f0d7e2ffc94b2;o=0
+      X-Request-Id:
+      - GHgYtfivU-sqoR8ABMUh
+      Via:
+      - 1.1 google
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+    body:
+      encoding: UTF-8
+      string: '{"data":{"attributes":{"duration":null,"location":null,"metadata":{"annotations":{},"createdAt":"2025-11-15T06:00:24Z","labels":{"test":"playlist1"},"modifiedAt":"2025-11-15T06:00:24Z","name":null,"namespace":"zach-staging"},"playback":null,"playbackStart":null,"playbackStop":null,"renditions":null,"source":null,"startedAt":"2025-11-15T06:00:23.000000Z"},"id":"66aa4bd7-263c-4e42-8031-62a46f10d9e3","links":{"self":"https://staging-api.video.scorevision.com/namespaces/zach-staging/videos/66aa4bd7-263c-4e42-8031-62a46f10d9e3"},"type":"videos"},"jsonapi":{"version":"1.0"}}'
+  recorded_at: Sat, 15 Nov 2025 06:00:24 GMT
+- request:
+    method: post
+    uri: https://staging-api.video.scorevision.com/namespaces/zach-staging/playlists
+    body:
+      encoding: UTF-8
+      string: '{"data":{"type":"playlists","attributes":{"metadata":{},"videos":["66aa4bd7-263c-4e42-8031-62a46f10d9e3"]}}}'
+    headers:
+      Accept:
+      - application/vnd.api+json
+      Content-Type:
+      - application/vnd.api+json
+      User-Agent:
+      - PugClient Ruby Gem 0.1.0
+      Authorization:
+      - "<AUTHORIZATION>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 201
+      message: Created
+    headers:
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Expose-Headers:
+      - ''
+      Cache-Control:
+      - max-age=0, private, must-revalidate
+      Content-Length:
+      - '625'
+      Content-Type:
+      - application/vnd.api+json; charset=utf-8
+      Date:
+      - Sat, 15 Nov 2025 06:00:24 GMT
+      Server:
+      - Cowboy
+      X-Cloud-Trace-Context:
+      - 7687e8462eede80acecd46327a46015f/079322c077f90e2a;o=0
+      X-Request-Id:
+      - GHgYtgnv8wYQrBQABMVB
+      Via:
+      - 1.1 google
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+    body:
+      encoding: UTF-8
+      string: '{"data":{"attributes":{"metadata":{"annotations":{},"createdAt":"2025-11-15T06:00:24.374928Z","labels":{},"modifiedAt":"2025-11-15T06:00:24.374928Z","name":null,"namespace":"zach-staging"},"playback":{"dash":"https://staging-content.video.scorevision.com/playback/zach-staging/playlists/e6e79b4d-edbe-4f32-bfd9-b5a62f6cf594.mpd","hls":"https://staging-content.video.scorevision.com/playback/zach-staging/playlists/e6e79b4d-edbe-4f32-bfd9-b5a62f6cf594.m3u8"},"version":1763186424372,"videos":["66aa4bd7-263c-4e42-8031-62a46f10d9e3"]},"id":"e6e79b4d-edbe-4f32-bfd9-b5a62f6cf594","type":"playlists"},"jsonapi":{"version":"1.0"}}'
+  recorded_at: Sat, 15 Nov 2025 06:00:24 GMT
+- request:
+    method: get
+    uri: https://staging-api.video.scorevision.com/namespaces/zach-staging/playlists/e6e79b4d-edbe-4f32-bfd9-b5a62f6cf594
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/vnd.api+json
+      Content-Type:
+      - application/vnd.api+json
+      User-Agent:
+      - PugClient Ruby Gem 0.1.0
+      Authorization:
+      - "<AUTHORIZATION>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Expose-Headers:
+      - ''
+      Cache-Control:
+      - max-age=0, private, must-revalidate
+      Content-Length:
+      - '625'
+      Content-Type:
+      - application/vnd.api+json; charset=utf-8
+      Date:
+      - Sat, 15 Nov 2025 06:00:24 GMT
+      Server:
+      - Cowboy
+      X-Cloud-Trace-Context:
+      - 158492dce26070c3cfe4965d000c3252/907e7e9e77d43e0c;o=0
+      X-Request-Id:
+      - GHgYthot5Fq7UqgABMVh
+      Via:
+      - 1.1 google
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+    body:
+      encoding: UTF-8
+      string: '{"data":{"attributes":{"metadata":{"annotations":{},"createdAt":"2025-11-15T06:00:24.374928Z","labels":{},"modifiedAt":"2025-11-15T06:00:24.374928Z","name":null,"namespace":"zach-staging"},"playback":{"dash":"https://staging-content.video.scorevision.com/playback/zach-staging/playlists/e6e79b4d-edbe-4f32-bfd9-b5a62f6cf594.mpd","hls":"https://staging-content.video.scorevision.com/playback/zach-staging/playlists/e6e79b4d-edbe-4f32-bfd9-b5a62f6cf594.m3u8"},"version":1763186424372,"videos":["66aa4bd7-263c-4e42-8031-62a46f10d9e3"]},"id":"e6e79b4d-edbe-4f32-bfd9-b5a62f6cf594","type":"playlists"},"jsonapi":{"version":"1.0"}}'
+  recorded_at: Sat, 15 Nov 2025 06:00:24 GMT
+- request:
+    method: delete
+    uri: https://staging-api.video.scorevision.com/namespaces/zach-staging/videos/66aa4bd7-263c-4e42-8031-62a46f10d9e3
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/vnd.api+json
+      Content-Type:
+      - application/vnd.api+json
+      User-Agent:
+      - PugClient Ruby Gem 0.1.0
+      Authorization:
+      - "<AUTHORIZATION>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Expose-Headers:
+      - ''
+      Cache-Control:
+      - max-age=0, private, must-revalidate
+      Content-Length:
+      - '575'
+      Content-Type:
+      - application/vnd.api+json; charset=utf-8
+      Date:
+      - Sat, 15 Nov 2025 06:00:24 GMT
+      Server:
+      - Cowboy
+      X-Cloud-Trace-Context:
+      - 6ce790a4a7c7796a8c81154fb546cee7/3ead25a19fa64f7f;o=0
+      X-Request-Id:
+      - GHgYtie_phjEg8MABMWB
+      Via:
+      - 1.1 google
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+    body:
+      encoding: UTF-8
+      string: '{"data":{"attributes":{"duration":null,"location":null,"metadata":{"annotations":{},"createdAt":"2025-11-15T06:00:24Z","labels":{"test":"playlist1"},"modifiedAt":"2025-11-15T06:00:24Z","name":null,"namespace":"zach-staging"},"playback":null,"playbackStart":null,"playbackStop":null,"renditions":null,"source":null,"startedAt":"2025-11-15T06:00:23.000000Z"},"id":"66aa4bd7-263c-4e42-8031-62a46f10d9e3","links":{"self":"https://staging-api.video.scorevision.com/namespaces/zach-staging/videos/66aa4bd7-263c-4e42-8031-62a46f10d9e3"},"type":"videos"},"jsonapi":{"version":"1.0"}}'
+  recorded_at: Sat, 15 Nov 2025 06:00:24 GMT
+- request:
+    method: post
+    uri: https://staging-api.video.scorevision.com/namespaces/zach-staging/videos
+    body:
+      encoding: UTF-8
+      string: '{"data":{"type":"videos","attributes":{"metadata":{"labels":{"test":"playlist2"}},"startedAt":"2025-11-15T06:00:24Z"}}}'
+    headers:
+      Accept:
+      - application/vnd.api+json
+      Content-Type:
+      - application/vnd.api+json
+      User-Agent:
+      - PugClient Ruby Gem 0.1.0
+      Authorization:
+      - "<AUTHORIZATION>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 201
+      message: Created
+    headers:
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Expose-Headers:
+      - ''
+      Cache-Control:
+      - max-age=0, private, must-revalidate
+      Content-Length:
+      - '575'
+      Content-Type:
+      - application/vnd.api+json; charset=utf-8
+      Date:
+      - Sat, 15 Nov 2025 06:00:24 GMT
+      Server:
+      - Cowboy
+      X-Cloud-Trace-Context:
+      - 1ca41cc4db64cc6273d633d85a2102f7/5c033613c70da8f5;o=0
+      X-Request-Id:
+      - GHgYtjd6i8L1Ws4ABfph
+      Via:
+      - 1.1 google
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+    body:
+      encoding: UTF-8
+      string: '{"data":{"attributes":{"duration":null,"location":null,"metadata":{"annotations":{},"createdAt":"2025-11-15T06:00:25Z","labels":{"test":"playlist2"},"modifiedAt":"2025-11-15T06:00:25Z","name":null,"namespace":"zach-staging"},"playback":null,"playbackStart":null,"playbackStop":null,"renditions":null,"source":null,"startedAt":"2025-11-15T06:00:24.000000Z"},"id":"d1c4811b-0ad5-4ecf-b165-2c534f542447","links":{"self":"https://staging-api.video.scorevision.com/namespaces/zach-staging/videos/d1c4811b-0ad5-4ecf-b165-2c534f542447"},"type":"videos"},"jsonapi":{"version":"1.0"}}'
+  recorded_at: Sat, 15 Nov 2025 06:00:25 GMT
+- request:
+    method: delete
+    uri: https://staging-api.video.scorevision.com/namespaces/zach-staging/videos/d1c4811b-0ad5-4ecf-b165-2c534f542447
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/vnd.api+json
+      Content-Type:
+      - application/vnd.api+json
+      User-Agent:
+      - PugClient Ruby Gem 0.1.0
+      Authorization:
+      - "<AUTHORIZATION>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Expose-Headers:
+      - ''
+      Cache-Control:
+      - max-age=0, private, must-revalidate
+      Content-Length:
+      - '575'
+      Content-Type:
+      - application/vnd.api+json; charset=utf-8
+      Date:
+      - Sat, 15 Nov 2025 06:00:25 GMT
+      Server:
+      - Cowboy
+      X-Cloud-Trace-Context:
+      - 2f6c82ee270d2667fc41d98552e57aee/e27c79ae9e009915;o=0
+      X-Request-Id:
+      - GHgYtkWrbyH4h24ABMXh
+      Via:
+      - 1.1 google
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+    body:
+      encoding: UTF-8
+      string: '{"data":{"attributes":{"duration":null,"location":null,"metadata":{"annotations":{},"createdAt":"2025-11-15T06:00:25Z","labels":{"test":"playlist2"},"modifiedAt":"2025-11-15T06:00:25Z","name":null,"namespace":"zach-staging"},"playback":null,"playbackStart":null,"playbackStop":null,"renditions":null,"source":null,"startedAt":"2025-11-15T06:00:24.000000Z"},"id":"d1c4811b-0ad5-4ecf-b165-2c534f542447","links":{"self":"https://staging-api.video.scorevision.com/namespaces/zach-staging/videos/d1c4811b-0ad5-4ecf-b165-2c534f542447"},"type":"videos"},"jsonapi":{"version":"1.0"}}'
+  recorded_at: Sat, 15 Nov 2025 06:00:25 GMT
+recorded_with: VCR 6.3.1
