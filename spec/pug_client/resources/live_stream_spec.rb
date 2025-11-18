@@ -125,6 +125,32 @@ RSpec.describe PugClient::Resources::LiveStream do
         described_class.create(client, namespace_id)
       end.to raise_error(PugClient::NetworkError)
     end
+
+    it 'creates livestream with SimulcastTarget objects' do
+      target = PugClient::Resources::SimulcastTarget.new(
+        client: client,
+        namespace_id: namespace_id,
+        attributes: { id: 'target-1', url: 'rtmp://youtube.com/live/key' }
+      )
+
+      expect(client).to receive(:post).with(
+        "namespaces/#{namespace_id}/livestreams",
+        hash_including(
+          data: hash_including(
+            attributes: hash_including(
+              simulcastTargets: %w[target-1]
+            )
+          )
+        )
+      ).and_return(build_api_response(
+        type: 'LiveStreams',
+        id: livestream_id,
+        attributes: build_metadata_timestamps
+      ))
+
+      livestream = described_class.create(client, namespace_id, simulcast_targets: [target])
+      expect(livestream).to be_a(described_class)
+    end
   end
 
   describe '.from_api_data' do
@@ -150,6 +176,60 @@ RSpec.describe PugClient::Resources::LiveStream do
       expect(livestream.id).to eq(livestream_id)
       expect(livestream.status).to eq('active')
       expect(livestream.namespace_id).to eq(namespace_id)
+    end
+  end
+
+  describe '.extract_simulcast_target_ids' do
+    let(:target1_id) { 'target-uuid-1' }
+    let(:target2_id) { 'target-uuid-2' }
+
+    let(:target1) do
+      PugClient::Resources::SimulcastTarget.new(
+        client: client,
+        namespace_id: namespace_id,
+        attributes: { id: target1_id, url: 'rtmp://youtube.com/live/key' }
+      )
+    end
+
+    let(:target2) do
+      PugClient::Resources::SimulcastTarget.new(
+        client: client,
+        namespace_id: namespace_id,
+        attributes: { id: target2_id, url: 'rtmp://twitch.tv/live/key' }
+      )
+    end
+
+    it 'extracts IDs from array of strings' do
+      result = described_class.send(:extract_simulcast_target_ids, [target1_id, target2_id])
+      expect(result).to eq([target1_id, target2_id])
+    end
+
+    it 'extracts IDs from array of SimulcastTarget objects' do
+      result = described_class.send(:extract_simulcast_target_ids, [target1, target2])
+      expect(result).to eq([target1_id, target2_id])
+    end
+
+    it 'extracts IDs from mixed array' do
+      result = described_class.send(:extract_simulcast_target_ids, [target1_id, target2])
+      expect(result).to eq([target1_id, target2_id])
+    end
+
+    it 'raises error for SimulcastTarget without ID' do
+      target_without_id = PugClient::Resources::SimulcastTarget.new(
+        client: client,
+        namespace_id: namespace_id,
+        attributes: { url: 'rtmp://example.com/live/key' }
+      )
+
+      expect do
+        described_class.send(:extract_simulcast_target_ids, [target_without_id])
+      end.to raise_error(PugClient::ValidationError, /SimulcastTarget must have an ID/)
+    end
+
+    it 'raises error for wrong type' do
+      expect do
+        described_class.send(:extract_simulcast_target_ids, [123])
+      end.to raise_error(PugClient::ValidationError, /Expected String or SimulcastTarget, got Integer/)
     end
   end
 
@@ -390,6 +470,96 @@ RSpec.describe PugClient::Resources::LiveStream do
   end
 
   it_behaves_like 'has namespace association'
+
+  describe '#simulcast_targets=' do
+    let(:target1_id) { 'target-uuid-1' }
+    let(:target2_id) { 'target-uuid-2' }
+
+    let(:target1) do
+      PugClient::Resources::SimulcastTarget.new(
+        client: client,
+        namespace_id: namespace_id,
+        attributes: { id: target1_id, url: 'rtmp://youtube.com/live/key' }
+      )
+    end
+
+    let(:target2) do
+      PugClient::Resources::SimulcastTarget.new(
+        client: client,
+        namespace_id: namespace_id,
+        attributes: { id: target2_id, url: 'rtmp://twitch.tv/live/key' }
+      )
+    end
+
+    it 'accepts array of UUID strings' do
+      resource_instance.simulcast_targets = [target1_id, target2_id]
+      expect(resource_instance.simulcast_targets).to eq([target1_id, target2_id])
+    end
+
+    it 'accepts array of SimulcastTarget objects' do
+      resource_instance.simulcast_targets = [target1, target2]
+      expect(resource_instance.simulcast_targets).to eq([target1_id, target2_id])
+    end
+
+    it 'accepts mixed array of UUIDs and SimulcastTarget objects' do
+      resource_instance.simulcast_targets = [target1_id, target2]
+      expect(resource_instance.simulcast_targets).to eq([target1_id, target2_id])
+    end
+
+    it 'raises error when SimulcastTarget object has no ID' do
+      target_without_id = PugClient::Resources::SimulcastTarget.new(
+        client: client,
+        namespace_id: namespace_id,
+        attributes: { url: 'rtmp://example.com/live/key' }
+      )
+
+      expect do
+        resource_instance.simulcast_targets = [target_without_id]
+      end.to raise_error(PugClient::ValidationError, /SimulcastTarget must have an ID/)
+    end
+
+    it 'raises error when wrong type is passed' do
+      expect do
+        resource_instance.simulcast_targets = [123]
+      end.to raise_error(PugClient::ValidationError, /Expected String or SimulcastTarget, got Integer/)
+    end
+
+    it 'raises error when non-SimulcastTarget object is passed' do
+      other_object = Object.new
+      expect do
+        resource_instance.simulcast_targets = [other_object]
+      end.to raise_error(PugClient::ValidationError, /Expected String or SimulcastTarget, got Object/)
+    end
+
+    it 'marks resource as dirty when simulcast_targets is changed' do
+      expect(resource_instance.changed?).to be false
+      resource_instance.simulcast_targets = [target1_id, target2_id]
+      expect(resource_instance.changed?).to be true
+    end
+
+    it 'validates simulcast_targets is not read-only' do
+      # Since simulcast_targets is NOT in READ_ONLY_ATTRIBUTES, this should NOT raise an error
+      expect { resource_instance.simulcast_targets = [target1_id] }.not_to raise_error
+    end
+
+    it 'generates correct patch operation for simulcast_targets change' do
+      resource_instance.simulcast_targets = [target1_id, target2_id]
+      patches = resource_instance.generate_patch_operations
+
+      expect(patches).to include(
+        hash_including(
+          op: 'add',
+          path: '/simulcastTargets',
+          value: [target1_id, target2_id]
+        )
+      )
+    end
+
+    it 'handles empty array' do
+      resource_instance.simulcast_targets = []
+      expect(resource_instance.simulcast_targets).to eq([])
+    end
+  end
 
   describe 'read-only attributes' do
     let(:livestream) do

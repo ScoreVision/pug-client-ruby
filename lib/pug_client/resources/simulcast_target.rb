@@ -165,6 +165,16 @@ module PugClient
         @current_attributes[:url]
       end
 
+      # Set the RTMP URL
+      #
+      # @param value [String] The new RTMP URL
+      # @return [String] The new URL value
+      def url=(value)
+        validate_writable!(:url)
+        mark_dirty!
+        @current_attributes[:url] = wrap_value(value)
+      end
+
       # Human-readable representation of the simulcast target
       #
       # @return [String]

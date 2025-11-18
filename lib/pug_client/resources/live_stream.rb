@@ -80,6 +80,11 @@ module PugClient
         options = options.dup
         options[:started_at] = options[:started_at].utc.iso8601 if options[:started_at].is_a?(Time)
 
+        # Extract IDs from SimulcastTarget objects if present
+        if options[:simulcast_targets]
+          options[:simulcast_targets] = extract_simulcast_target_ids(options[:simulcast_targets])
+        end
+
         # Convert to API format (camelCase)
         attributes = AttributeTranslator.to_api(options)
 
@@ -240,12 +245,45 @@ module PugClient
         id
       end
 
+      # Set simulcast targets (accepts UUIDs or SimulcastTarget objects)
+      #
+      # @param targets [Array<String, SimulcastTarget>] Array of UUIDs or SimulcastTarget objects
+      # @raise [ValidationError] if SimulcastTarget object has no ID
+      def simulcast_targets=(targets)
+        ids = self.class.send(:extract_simulcast_target_ids, targets)
+
+        validate_writable!(:simulcast_targets)
+        mark_dirty!
+        @current_attributes[:simulcast_targets] = ids
+      end
+
       # Human-readable representation of the livestream
       #
       # @return [String]
       def inspect
         "#<#{self.class.name} id=#{id.inspect} status=#{status.inspect} changed=#{changed?}>"
       end
+
+      # Extract IDs from SimulcastTarget objects or strings
+      #
+      # @param targets [Array<String, SimulcastTarget>] Array of UUIDs or SimulcastTarget objects
+      # @return [Array<String>] Array of UUIDs
+      # @raise [ValidationError] if SimulcastTarget object has no ID or wrong type
+      def self.extract_simulcast_target_ids(targets)
+        targets.map do |target|
+          case target
+          when String
+            target
+          when Resources::SimulcastTarget
+            raise ValidationError, 'SimulcastTarget must have an ID (save it first)' if target.id.nil?
+
+            target.id
+          else
+            raise ValidationError, "Expected String or SimulcastTarget, got #{target.class}"
+          end
+        end
+      end
+      private_class_method :extract_simulcast_target_ids
     end
   end
 end

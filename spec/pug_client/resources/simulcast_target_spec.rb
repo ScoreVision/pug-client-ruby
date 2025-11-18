@@ -121,6 +121,37 @@ RSpec.describe PugClient::Resources::SimulcastTarget do
     end
   end
 
+  describe '#url=' do
+    it 'sets a new URL value' do
+      resource_instance.url = 'rtmp://new-platform.com/live/key'
+      expect(resource_instance.url).to eq('rtmp://new-platform.com/live/key')
+    end
+
+    it 'marks resource as dirty when URL is changed' do
+      expect(resource_instance.changed?).to be false
+      resource_instance.url = 'rtmp://new-platform.com/live/key'
+      expect(resource_instance.changed?).to be true
+    end
+
+    it 'validates url is not read-only' do
+      # Since url is NOT in READ_ONLY_ATTRIBUTES, this should NOT raise an error
+      expect { resource_instance.url = 'rtmp://new-url.com/key' }.not_to raise_error
+    end
+
+    it 'generates correct patch operation for url change' do
+      resource_instance.url = 'rtmp://changed.com/stream'
+      patches = resource_instance.generate_patch_operations
+
+      expect(patches).to include(
+        hash_including(
+          op: 'replace',
+          path: '/url',
+          value: 'rtmp://changed.com/stream'
+        )
+      )
+    end
+  end
+
   describe '#inspect' do
     it 'includes id, url (truncated), and changed status' do
       expect(resource_instance.inspect).to match(/SimulcastTarget/)

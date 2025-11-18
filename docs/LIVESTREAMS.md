@@ -79,23 +79,26 @@ other_streams = client.livestreams(namespace: 'other-ns').first(5)
 
 ## Simulcast Targets (Restreaming)
 
-LiveStreams support simulcasting - streaming to multiple platforms simultaneously. See the [Simulcast Targets](SIMULCAST_TARGETS.md) documentation for detailed information.
+LiveStreams support simulcasting - streaming to multiple platforms simultaneously.
 
 ```ruby
-# Get livestream
-livestream = client.livestream('23b0324a-bc2b-4b7a-a313-1b15af485db6')
+# Create simulcast targets
+youtube = client.create_simulcast_target('rtmp://a.rtmp.youtube.com/live2/stream-key')
+facebook = client.create_simulcast_target('rtmps://live-api-s.facebook.com:443/rtmp/stream-key')
 
-# Add simulcast target (YouTube, Facebook, Twitch, custom RTMP)
-target = client.create_simulcast_target(
-  livestream.id,
-  'YouTube',
-  'rtmp://a.rtmp.youtube.com/live2',
-  'your-stream-key-here',
-  namespace: livestream.namespace_id
+# Create livestream with simulcast targets
+livestream = client.create_livestream(
+  simulcast_targets: [youtube, facebook],
+  metadata: { labels: { event: 'game' } }
 )
 
-puts "Added simulcast target: #{target.id}"
+# Or add to existing livestream
+livestream = client.livestream('livestream-id')
+livestream.simulcast_targets = [youtube, facebook]
+livestream.save
 ```
+
+See the [Simulcast Targets](SIMULCAST_TARGETS.md) documentation for complete details on workflows, managing targets, and multi-platform broadcasting.
 
 ## Deleting LiveStreams
 
