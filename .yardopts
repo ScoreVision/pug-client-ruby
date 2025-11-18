@@ -2,5 +2,8 @@
 --readme=README.md
 --markup=markdown
 --markup-provider=redcarpet
+--plugin yard-relative_markdown_links
 --no-private
 lib/**/*.rb
+-
+docs/*.md

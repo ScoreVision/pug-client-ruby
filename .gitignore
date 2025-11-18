@@ -20,6 +20,8 @@ rubocop.xml
 
 # yard
 .yardoc/
+# generated documentation output
+doc/
 
 # Example environment files (contain credentials)
 example/env.sh

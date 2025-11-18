@@ -6,18 +6,20 @@ This gem provides an intuitive, object-oriented interface for working with video
 
 ## What Can You Do With Pug?
 
-- Manage video resources (upload, update, delete, retrieve)
-- Create and manage livestreams and campaigns
-- Organize content with namespaces
-- Generate signed upload URLs
-- Execute video commands (clipping, processing, etc.)
-- Track video metadata and labels
+- **Manage video resources** - Upload, update, delete, and retrieve videos
+- **Create and manage livestreams** - Live video streaming with real-time playback
+- **Simulcast/Restream** - Broadcast to multiple platforms simultaneously (YouTube, Facebook, Twitch, custom RTMP)
+- **Organize content** - Use namespaces to organize videos into logical groups
+- **Generate upload URLs** - Secure, signed URLs for direct client uploads
+- **Execute video commands** - Create clips from existing videos
+- **Track metadata** - Rich labeling and annotation system for categorization
+- **Webhooks** - Real-time notifications for video events
 
 ## Quick Start
 
 Get up and running in 30 seconds:
 
-```ruby
+```bash
 # 1. Install the gem
 gem install pug-client
 
@@ -27,46 +29,48 @@ export PUG_CLIENT_SECRET=your_client_secret
 export PUG_NAMESPACE=my-videos
 
 # 3. Use the client
+```
+
+```ruby
 require 'pug_client'
 
-# Namespace is REQUIRED during initialization
-client = PugClient::Client.new(
-  namespace: ENV['PUG_NAMESPACE']
-)
+# Create client (automatically uses ENV vars)
+client = PugClient::Client.new(namespace: ENV['PUG_NAMESPACE'])
 client.authenticate!
 
-# Access your configured namespace
+# Access your namespace
 namespace = client.namespace
 puts "Namespace: #{namespace.id}"
 
-# Iterate videos lazily (uses default namespace)
-client.videos.each do |video|
-  puts "Video #{video.id}: #{video.metadata[:title]}"
+# List videos (lazy iteration)
+client.videos.first(10).each do |video|
+  puts "Video #{video.id}: #{video.metadata[:labels][:title]}"
 end
 
-# Get a specific video and update it
+# Get and update a video
 video = client.video('video-123')
 video.metadata[:labels][:status] = 'ready'
 video.metadata[:labels][:featured] = true
 video.save  # Auto-generates JSON Patch
+
+# Upload a new video
+video = client.create_video(Time.now.utc.iso8601)
+File.open('game.mp4', 'rb') { |f| video.upload(f, filename: 'game.mp4') }
+video.wait_until_ready(timeout: 600)
+puts "Playback URLs: #{video.playback_urls}"
 ```
 
 ## Table of Contents
 
 - [Installation](#installation)
 - [API Compatibility](#api-compatibility)
-- [Basic Usage](#basic-usage)
 - [Authentication](#authentication)
-- [Working with Resources](#working-with-resources)
-  - [Namespaces](#namespaces)
-  - [Videos](#videos)
-- [Resource API Features](#resource-api-features)
-  - [Lazy Enumeration](#lazy-enumeration)
-  - [Dirty Tracking](#dirty-tracking)
-  - [Attribute Translation](#attribute-translation)
+- [Basic Usage](#basic-usage)
+- [Resources](#resources)
+- [Key Features](#key-features)
 - [Configuration](#configuration)
-- [Advanced Usage](#advanced-usage)
-- [Troubleshooting](#troubleshooting)
+- [Error Handling](#error-handling)
+- [Documentation](#documentation)
 
 ## Installation
 
@@ -90,410 +94,263 @@ This client library is designed for and tested against **Pug Video API version 0
 PugClient::API_VERSION  # => "0.4.0"
 ```
 
-The library includes comprehensive integration tests recorded against the staging API using VCR cassettes. These tests validate that the client works correctly with the specified API version and serve as both verification and documentation of the expected API behavior.
-
-**Testing Against Specific API Versions:**
-
-Integration tests are organized by API version in `spec/integration/api_v0.4.0/`. When the API is updated, we maintain separate test suites and VCR recordings for each version to ensure compatibility and catch breaking changes.
-
-For more information about API versions and compatibility, see the [Pug Video API documentation](https://staging-api.video.scorevision.com/openapi.json).
-
-## Basic Usage
-
-Here's a complete example showing the resource-based API:
-
-```ruby
-require 'pug_client'
-
-# 1. Create a client with namespace (REQUIRED)
-client = PugClient::Client.new(
-  namespace: 'my-videos',
-  client_id: ENV['PUG_CLIENT_ID'],
-  client_secret: ENV['PUG_CLIENT_SECRET']
-)
-
-# 2. Authenticate (gets an OAuth access token)
-client.authenticate!
-
-# 3. Work with your configured namespace
-namespace = client.namespace  # Uses default namespace
-puts "Namespace: #{namespace.id}"
-puts "Created at: #{namespace.created_at}"
-
-# Or access a different namespace
-other_namespace = client.namespace('other-videos')
-
-# 4. Work with videos (uses default namespace)
-video = client.video('video-123')
-puts "Video: #{video.id}"
-
-# Or override namespace for specific calls
-video = client.video('video-456', namespace: 'other-videos')
-
-# 5. Update video naturally with dirty tracking
-video.metadata[:labels][:status] = 'processed'
-video.metadata[:labels][:featured] = true
-video.save  # Automatically generates JSON Patch operations
-
-# 6. Create a clip from video
-clip = video.clip(start_time: 5000, duration: 30000,
-  metadata: { labels: { type: 'highlight' } }
-)
-puts "Created clip: #{clip.id}"
-
-# 7. Upload a file (MP4 only currently)
-File.open('video.mp4', 'rb') do |file|
-  video.upload(file, filename: 'video.mp4')
-end
-video.wait_until_ready(timeout: 600)
-puts "Video ready: #{video.playback_urls}"
-
-# 8. Iterate videos lazily (fetches pages on-demand, uses default namespace)
-client.videos.each do |video|
-  puts "Video: #{video.id}"
-end
-
-# Or get first N videos
-recent_videos = client.videos.first(10)
-
-# Override namespace for listings
-other_videos = client.videos(namespace: 'other-videos').first(10)
-
-# 9. Delete video
-video.delete
-```
+The library includes comprehensive integration tests recorded against the API using VCR cassettes. All integration tests are located in `spec/integration/`, and VCR cassettes are versioned by API in `spec/cassettes/api_v0.4.0/`.
 
 ## Authentication
 
-The client uses **Auth0's client credentials flow** for machine-to-machine authentication. You'll need API credentials (client ID and secret) from your Pug account.
+The client uses **Auth0's client credentials flow** for machine-to-machine authentication. Tokens are automatically refreshed before each API request, so you don't need to manually manage token expiration.
 
-### Three Ways to Provide Credentials
+### Automatic Credentials from Environment
 
-**1. Environment Variables (Recommended for Production)**
+The gem automatically reads credentials from environment variables:
+
+```bash
+export PUG_CLIENT_ID=your_client_id
+export PUG_CLIENT_SECRET=your_client_secret
+export PUG_NAMESPACE=my-videos
+```
 
 ```ruby
-# Set in your environment:
-# export PUG_CLIENT_ID=your_client_id
-# export PUG_CLIENT_SECRET=your_client_secret
-# export PUG_NAMESPACE=my-videos
-
-client = PugClient::Client.new(
-  namespace: ENV['PUG_NAMESPACE']  # Required
-)
+# Credentials loaded automatically from ENV
+client = PugClient::Client.new(namespace: ENV['PUG_NAMESPACE'])
 client.authenticate!
 ```
 
-**2. Pass Directly (Good for Testing)**
+### Explicit Credentials
+
+You can also pass credentials directly:
 
 ```ruby
 client = PugClient::Client.new(
-  namespace: 'my-videos',  # Required
+  namespace: 'my-videos',
   client_id: 'your_client_id',
   client_secret: 'your_client_secret'
 )
 client.authenticate!
 ```
 
-**3. Global Configuration (For Singleton Pattern)**
+### Global Configuration (Singleton Pattern)
 
 ```ruby
 PugClient.configure do |c|
-  c.namespace = 'my-videos'  # Required
+  c.namespace = 'my-videos'
   c.client_id = 'your_client_id'
   c.client_secret = 'your_client_secret'
 end
 
-# Now use module-level methods
 PugClient.authenticate!
-namespace = PugClient.namespace  # Uses configured namespace
+
+# Use module-level methods
+namespace = PugClient.namespace
+videos = PugClient.videos.first(10)
 ```
 
-### Managing Authentication
+**Note:** Authentication tokens are automatically refreshed before every API request, so you don't need to manually check token expiration or call `ensure_authenticated!`.
+
+## Basic Usage
+
+### Complete Example
 
 ```ruby
-# Check if authenticated
-client.authenticated? # => true/false
+require 'pug_client'
 
-# Check if token is expired
-client.token_expired? # => true/false
-
-# Auto-refresh token if needed (recommended before API calls)
-client.ensure_authenticated!
-
-# Manually refresh token
+# Create client with namespace (required)
+client = PugClient::Client.new(namespace: 'my-videos')
 client.authenticate!
-```
 
-## Working with Resources
+# Get your namespace
+namespace = client.namespace
+puts "Namespace: #{namespace.id}"
 
-### Namespaces
-
-Namespaces help organize your video content. Think of them as folders or projects. The resource-based API makes working with namespaces intuitive and object-oriented.
-
-**Important:** A namespace ID is required when creating a client and serves as the default for all operations. You'll use an existing namespace that's been set up for your account.
-
-```ruby
-# Create client with default namespace (REQUIRED - use existing namespace ID)
-client = PugClient::Client.new(
-  namespace: 'my-videos',  # Your existing namespace ID
-  client_id: ENV['PUG_CLIENT_ID'],
-  client_secret: ENV['PUG_CLIENT_SECRET']
+# Create and upload a video
+video = client.create_video(
+  Time.now.utc.iso8601,
+  metadata: {
+    labels: {
+      title: 'Championship Game',
+      team: 'eagles',
+      game_date: '2025-01-15'
+    }
+  }
 )
 
-# Get your configured namespace (no ID needed)
-namespace = client.namespace
-puts namespace.id         # => "my-videos"
-puts namespace.metadata
+File.open('game.mp4', 'rb') { |f| video.upload(f, filename: 'game.mp4') }
+video.wait_until_ready(timeout: 600)
+puts "Video ready: #{video.playback_urls}"
 
-# Get a different namespace by ID
-other = client.namespace('other-videos')
-
-# Update namespace metadata (with automatic dirty tracking)
-namespace.metadata[:labels][:status] = 'active'
-namespace.metadata[:annotations] = { project: 'v2' }
-namespace.save  # Generates and sends JSON Patch automatically
-
-# Reload from API (discards unsaved changes)
-namespace.reload
-puts namespace.metadata
-
-# List all namespaces you have access to (returns lazy enumerator)
-client.namespaces.each do |ns|
-  puts "Namespace: #{ns.id}"
-end
-
-# List user's namespaces
-client.user_namespaces.first(10)
-```
-
-### Videos
-
-Videos are the core resource. Each video belongs to a namespace and uses the powerful resource-based API for natural, Ruby-idiomatic operations.
-
-**Two ways to work with videos:**
-1. Through the client (uses configured default namespace)
-2. Through a namespace object (uses that namespace's ID)
-
-```ruby
-# Setup: Client with default namespace
-client = PugClient::Client.new(
-  namespace: 'my-videos',
-  client_id: ENV['PUG_CLIENT_ID'],
-  client_secret: ENV['PUG_CLIENT_SECRET']
-)
-
-# Way 1: Use client directly (uses default namespace 'my-videos')
-video = client.video('video-123')
-puts video.id
-
-# Override namespace for specific calls
-video = client.video('video-456', namespace: 'other-videos')
-
-# Way 2: Use namespace object
-namespace = client.namespace
-video = namespace.video('video-123')  # Same as client.video('video-123')
-
-# Update video metadata (automatic dirty tracking + JSON Patch)
-video.metadata[:labels][:status] = 'processed'
+# Update video metadata
+video.metadata[:labels][:status] = 'published'
 video.metadata[:labels][:featured] = true
-video.save  # Auto-generates: [
-            #   {op: 'add', path: '/attributes/metadata/labels/status', value: 'processed'},
-            #   {op: 'add', path: '/attributes/metadata/labels/featured', value: true}
-            # ]
+video.save  # Automatically generates JSON Patch operations
 
-# Upload a video file (MP4 only currently)
-File.open('video.mp4', 'rb') do |file|
-  video.upload(file, filename: 'video.mp4')
-end
-
-# Wait for video processing to complete
-video.wait_until_ready(timeout: 600, interval: 5)
-puts "Video ready! Playback URLs: #{video.playback_urls}"
-
-# Create a clip from a video (returns NEW video resource)
+# Create a clip (highlight)
 clip = video.clip(
-  start_time: 10000,  # Start at 10 seconds (milliseconds)
-  duration: 30000,    # 30 second clip
-  metadata: { labels: { type: 'highlight' } }
+  start_time: 120000,  # 2 minutes
+  duration: 30000,     # 30 seconds
+  metadata: { labels: { type: 'touchdown' } }
 )
-puts "Created clip: #{clip.id}"
 
-# You can work with the clip like any other video
-clip.metadata[:labels][:featured] = true
-clip.save
-
-# Get the parent namespace of a video
-parent = video.namespace
-puts "Video belongs to: #{parent.id}"
-
-# Iterate videos (both approaches work)
-client.videos.each do |video|                    # Uses default namespace
-  puts "Video #{video.id}: #{video.started_at}"
+# List videos efficiently
+client.videos.first(20).each do |v|
+  puts "#{v.id}: #{v.metadata[:labels][:title]}"
 end
 
-namespace.videos.each do |video|                 # Uses namespace's ID
-  puts "Video #{video.id}: #{video.started_at}"
-end
-
-# Override namespace for listings
-client.videos(namespace: 'other-videos').each { |v| puts v.id }
-
-# Get first N videos efficiently
-recent_videos = client.videos.first(10)
-
-# Force eager loading if needed
-all_videos = client.videos.to_a
-
-# Filter videos (still lazy)
-ready_videos = client.videos.select { |v| v.status == 'ready' }
-
-# Delete a video
+# Delete video
 video.delete
-
-# Reload video from API (discards local changes)
-video.reload
 ```
 
-### Read-Only Attributes
+## Resources
 
-Some attributes cannot be modified after creation:
+All resources follow a consistent, object-oriented pattern with automatic dirty tracking, lazy enumeration, and natural Ruby idioms.
 
-**Namespace:** `id`, `created_at`, `updated_at`
-**Video:** `id`, `created_at`, `updated_at`, `duration`, `renditions`, `playback_urls`, `thumbnail_url`
+### Available Resources
+
+- **[Namespaces](docs/NAMESPACES.md)** - Organize content into logical groups
+- **[Videos](docs/VIDEOS.md)** - Core video management with upload, playback, and clipping
+- **[LiveStreams](docs/LIVESTREAMS.md)** - Real-time video streaming
+- **[Campaigns](docs/CAMPAIGNS.md)** - Group related content for distribution
+- **[Playlists](docs/PLAYLISTS.md)** - Ordered collections for sequential playback
+- **[Webhooks](docs/WEBHOOKS.md)** - Real-time event notifications
+- **[Simulcast Targets](docs/SIMULCAST_TARGETS.md)** - Restream to multiple platforms (YouTube, Facebook, Twitch, custom RTMP)
+
+### Common Resource Patterns
+
+All resources support:
 
 ```ruby
-video.id = 'new-id'  # Raises ValidationError
-video.duration = 90000  # Raises ValidationError
+# Find by ID (uses configured namespace)
+resource = client.video('video-123')
 
-# But you can read them
-puts video.duration
-puts video.playback_urls
+# Override namespace for specific call
+resource = client.video('video-123', namespace: 'other-namespace')
+
+# Update with automatic dirty tracking
+resource.metadata[:labels][:status] = 'ready'
+resource.save  # Generates JSON Patch automatically
+
+# Reload from API
+resource.reload
+
+# Delete resource
+resource.delete
+
+# List resources lazily
+client.videos.first(20).each { |v| puts v.id }
 ```
 
-## Resource API Features
+**See [RESOURCES.md](docs/RESOURCES.md) for an overview and links to detailed guides for each resource type.**
 
-### Lazy Enumeration
+## Key Features
 
-Resource collections use Ruby's Enumerator pattern for efficient, on-demand pagination:
-
-```ruby
-# Fetches pages as you iterate (memory efficient for large datasets)
-namespace.videos.each do |video|
-  puts video.id
-  break if video.id == 'target-id'  # Stops fetching
-end
-
-# Get first N (only fetches enough pages)
-recent = namespace.videos.first(10)
-
-# Full Enumerable interface
-ids = namespace.videos.map(&:id)
-featured = namespace.videos.select { |v| v.metadata[:labels][:featured] }
-count = namespace.videos.count  # Note: fetches all pages
-
-# Force eager loading when needed
-all_videos = namespace.videos.to_a
-```
-
-### Dirty Tracking
+### Automatic Dirty Tracking
 
 Resources automatically track changes and generate JSON Patch operations:
 
 ```ruby
-video = client.video('my-namespace', 'video-123')
+video = client.video('video-123')
 
 # Make multiple changes
 video.metadata[:labels][:status] = 'ready'
 video.metadata[:labels][:reviewed] = true
-video.metadata[:annotations] = { reviewer: 'john@example.com' }
+video.metadata[:labels][:featured] = true
 
 # Check if changed
 video.changed?  # => true
 
 # Save sends JSON Patch automatically
-video.save  # Generates:
-           # [
-           #   {op: 'add', path: '/attributes/metadata/labels/status', value: 'ready'},
-           #   {op: 'add', path: '/attributes/metadata/labels/reviewed', value: true},
-           #   {op: 'add', path: '/attributes/metadata/annotations', value: {...}}
-           # ]
+video.save
+# Generates: [
+#   {op: 'add', path: '/attributes/metadata/labels/status', value: 'ready'},
+#   {op: 'add', path: '/attributes/metadata/labels/reviewed', value: true},
+#   {op: 'add', path: '/attributes/metadata/labels/featured', value: true}
+# ]
 
-# After save, no longer dirty
-video.changed?  # => false
-
-# Reload discards unsaved changes
-video.metadata[:labels][:new] = 'value'
-video.reload  # Local changes discarded, fresh from API
+video.changed?  # => false (clean after save)
 ```
+
+**Learn more:** [ADVANCED.md#dirty-tracking](docs/ADVANCED.md#dirty-tracking)
+
+### Lazy Enumeration
+
+Collections use Ruby's Enumerator pattern for efficient, on-demand pagination:
+
+```ruby
+# Fetches pages as you iterate (memory efficient)
+client.videos.each do |video|
+  puts video.id
+  break if condition  # Stops fetching additional pages
+end
+
+# Get first N (only fetches necessary pages)
+recent_videos = client.videos.first(20)
+
+# Full Enumerable support
+featured = client.videos.select { |v| v.metadata[:labels][:featured] }
+```
+
+**Learn more:** [ADVANCED.md#lazy-enumeration](docs/ADVANCED.md#lazy-enumeration)
 
 ### Attribute Translation
 
-The API uses camelCase, but Ruby code uses snake_case:
+The API uses camelCase, but Ruby code uses snake_case - translation is automatic:
 
 ```ruby
-# API returns: { data: { attributes: { startedAt: '...' } } }
+# API returns: { startedAt: '...', playbackUrls: {...} }
 # Ruby sees:
-video.started_at  # Automatic translation
+video.started_at
+video.playback_urls
 
-# When you update:
-video.metadata[:created_by] = 'user@example.com'
-# Sent to API as: { createdBy: 'user@example.com' }
+# Ruby sends: { metadata: { labels: { created_by: 'user' } } }
+# API receives: { metadata: { labels: { createdBy: 'user' } } }
 ```
+
+**Learn more:** [ADVANCED.md#attribute-translation](docs/ADVANCED.md#attribute-translation)
+
+### Metadata: Labels vs Annotations
+
+The API provides two metadata fields with different purposes:
+
+**Labels** - User-defined categorization (for API consumers):
+```ruby
+video.metadata[:labels] = {
+  team: 'eagles',
+  highlight_type: 'touchdown',
+  quarter: '4',
+  featured: true
+}
+```
+
+**Annotations** - System-generated metadata (for backend use):
+```ruby
+# Automatically set by the system
+clip.metadata[:annotations]
+# => {
+#   "scorevision.com/command": "clip",
+#   "scorevision.com/command_source": "video-123"
+# }
+```
+
+**Learn more:** [API_LIMITATIONS.md#metadata-structure](docs/API_LIMITATIONS.md#metadata-structure)
 
 ## Configuration
 
 ### Environment Configuration
 
-Pug provides preset configurations for production and staging environments.
-
-**Production (Default)**
-
+**Production (Default):**
 ```ruby
-client = PugClient::Client.new(
-  namespace: ENV['PUG_NAMESPACE'],  # Required
-  client_id: ENV['PUG_CLIENT_ID'],
-  client_secret: ENV['PUG_CLIENT_SECRET']
-  # Uses production endpoints automatically
-)
+client = PugClient::Client.new(namespace: 'my-videos')
+# Uses production endpoints automatically
 ```
 
-**Staging**
-
+**Staging:**
 ```ruby
-# Option 1: Pass environment parameter
 client = PugClient::Client.new(
   environment: :staging,
-  namespace: ENV['PUG_NAMESPACE'],  # Required
-  client_id: ENV['PUG_STAGING_CLIENT_ID'],
-  client_secret: ENV['PUG_STAGING_CLIENT_SECRET']
-)
-
-# Option 2: Use global configuration
-PugClient.use_staging!
-PugClient.configure do |c|
-  c.namespace = ENV['PUG_NAMESPACE']  # Required
-  c.client_id = ENV['PUG_STAGING_CLIENT_ID']
-  c.client_secret = ENV['PUG_STAGING_CLIENT_SECRET']
-end
-```
-
-**Custom/Local Development**
-
-For custom environments (local development, custom deployments), pass all endpoints explicitly:
-
-```ruby
-client = PugClient::Client.new(
-  namespace: 'test-namespace',  # Required
-  api_endpoint: 'http://localhost:3000',
-  auth_endpoint: 'http://localhost:3001/oauth/token',
-  auth_audience: 'http://localhost:3000/',
-  auth_grant_type: 'client_credentials',
-  client_id: 'local_client_id',
-  client_secret: 'local_client_secret'
+  namespace: 'my-videos'
 )
 ```
 
-### Environment Defaults
+### Environment Endpoints
 
 | Setting | Production | Staging |
 |---------|-----------|---------|
@@ -501,233 +358,90 @@ client = PugClient::Client.new(
 | Auth Endpoint | `https://fantagio.auth0.com/oauth/token` | `https://fantagio-staging.auth0.com/oauth/token` |
 | Auth Audience | `https://api.fantag.io/` | `https://staging-api.fantag.io/` |
 
-### Configuration Options Reference
-
-All available configuration options:
+### Configuration Options
 
 ```ruby
-PugClient::Client.new(
-  # Namespace (REQUIRED)
-  namespace: 'my-videos',               # Default namespace for all operations (required)
+client = PugClient::Client.new(
+  # Required
+  namespace: 'my-videos',
 
-  # Environment (preset configurations)
-  environment: :production,              # :production (default) or :staging
+  # Environment preset
+  environment: :production,  # or :staging
 
-  # Authentication (required)
-  client_id: 'your_client_id',          # OAuth client ID
-  client_secret: 'your_client_secret',  # OAuth client secret
-  access_token: 'manual_token',         # Optional: skip auth flow with existing token
+  # Authentication (defaults from ENV)
+  client_id: ENV['PUG_CLIENT_ID'],
+  client_secret: ENV['PUG_CLIENT_SECRET'],
 
-  # Endpoints (auto-set by environment, or specify manually)
-  api_endpoint: 'https://...',          # API base URL
-  auth_endpoint: 'https://...',         # Auth0 token endpoint
-  auth_audience: 'https://...',         # Auth0 audience
-  auth_grant_type: 'client_credentials', # OAuth grant type
+  # Optional: Pagination
+  per_page: 20,
 
-  # Pagination
-  per_page: 10,                         # Default page size (default: 10)
-
-  # HTTP Configuration
-  connection_options: {                 # Faraday options
+  # Optional: HTTP timeouts
+  connection_options: {
     request: {
-      open_timeout: 5,                  # Connection timeout
-      timeout: 10                       # Read timeout
+      open_timeout: 10,
+      timeout: 30
     }
   }
 )
 ```
 
-## Advanced Usage
+**Learn more:** [ADVANCED.md#configuration](docs/ADVANCED.md#configuration)
 
-### Module-Level API
+## Error Handling
 
-Use the module-level API for a singleton-style interface:
-
-```ruby
-# Configure once (namespace is required)
-PugClient.configure do |c|
-  c.namespace = ENV['PUG_NAMESPACE']  # Required
-  c.client_id = ENV['PUG_CLIENT_ID']
-  c.client_secret = ENV['PUG_CLIENT_SECRET']
-end
-
-# Use anywhere
-PugClient.authenticate!
-
-# Access configured namespace
-namespace = PugClient.namespace
-videos = namespace.videos.to_a
-
-# Or use client methods directly (uses configured namespace)
-videos = PugClient.videos.to_a
-video = PugClient.video('video-123')
-```
-
-### Error Handling
-
-The gem provides specific error classes for better error handling:
+The gem provides specific error classes for graceful error handling:
 
 ```ruby
 begin
   video = client.video('non-existent')
 rescue PugClient::ResourceNotFound => e
-  puts "Video not found: #{e.resource_type} #{e.id}"
+  puts "Video not found: #{e.message}"
+rescue PugClient::ValidationError => e
+  puts "Validation error: #{e.message}"
 rescue PugClient::NetworkError => e
   puts "Network error: #{e.message}"
 rescue PugClient::AuthenticationError => e
   puts "Auth error: #{e.message}"
-end
-
-# Namespace requirement validation
-begin
-  client = PugClient::Client.new(
-    client_id: ENV['PUG_CLIENT_ID'],
-    client_secret: ENV['PUG_CLIENT_SECRET']
-    # Missing required namespace parameter
-  )
-rescue ArgumentError => e
-  puts e.message  # => "namespace is required"
-end
-
-# Upload validation
-begin
-  video.upload(file, filename: 'video.avi', content_type: 'video/avi')
-rescue PugClient::ValidationError => e
-  puts "Invalid upload: #{e.message}"
-  # => "Unsupported content type: video/avi. Currently only video/mp4 is supported."
-end
-
-# Wait timeout
-begin
-  video.wait_until_ready(timeout: 60)
 rescue PugClient::TimeoutError => e
-  puts "Video processing took too long: #{e.message}"
+  puts "Timeout: #{e.message}"
 end
 ```
 
-### Low-Level HTTP Methods
+**Available error classes:**
+- `AuthenticationError` - OAuth authentication failed
+- `ResourceNotFound` - Resource doesn't exist (404)
+- `ValidationError` - Invalid data or modifications
+- `NetworkError` - HTTP/network failures
+- `TimeoutError` - Wait operations exceeded timeout
+- `ResourceFrozenError` - Attempted to modify frozen/deleted resource
+- `FeatureNotSupportedError` - Intentionally unsupported endpoints
 
-For resources not yet supported by dedicated resource classes (livestreams, campaigns, etc.), use the low-level HTTP interface:
+**Learn more:** [ADVANCED.md#error-handling](docs/ADVANCED.md#error-handling)
 
-```ruby
-# GET request
-response = client.get('livestreams')
+## Documentation
 
-# POST request (with JSON:API formatted body)
-response = client.post('livestreams', {
-  data: {
-    type: 'livestreams',
-    attributes: {
-      title: 'My Livestream'
-    }
-  }
-})
+### Complete Documentation
 
-# PATCH request (JSON Patch format)
-response = client.patch("livestreams/123", [
-  { op: 'replace', path: '/attributes/title', value: 'Updated Title' }
-])
+- **[RESOURCES.md](docs/RESOURCES.md)** - Overview and index of all resource guides
+  - [Namespaces](docs/NAMESPACES.md), [Videos](docs/VIDEOS.md), [LiveStreams](docs/LIVESTREAMS.md), [Campaigns](docs/CAMPAIGNS.md), [Playlists](docs/PLAYLISTS.md), [Webhooks](docs/WEBHOOKS.md), [Simulcast Targets](docs/SIMULCAST_TARGETS.md)
+- **[API_LIMITATIONS.md](docs/API_LIMITATIONS.md)** - Video processing constraints, metadata structure, rate limits
+- **[ADVANCED.md](docs/ADVANCED.md)** - Deep dive into dirty tracking, lazy enumeration, attribute translation, error handling, configuration
+- **[RAILS_INTEGRATION.md](docs/RAILS_INTEGRATION.md)** - Rails-specific examples (controllers, background jobs, testing)
+- **[CLAUDE.md](https://git.scorevision.com/fantag/pug-client-ruby/-/blob/main/CLAUDE.md)** - Development guide and architecture details
 
-# DELETE request
-client.delete("livestreams/123")
+### API Documentation
 
-# Access response details
-puts client.last_response.status        # HTTP status code
-puts client.last_response.headers       # Response headers
+- **Production API:** [https://api.video.scorevision.com/ui](https://api.video.scorevision.com/ui)
+- **Staging API:** [https://staging-api.video.scorevision.com/ui](https://staging-api.video.scorevision.com/ui)
+
+### YARD Documentation
+
+Generate API documentation with YARD:
+
+```bash
+bundle exec yard doc
+open doc/index.html
 ```
-
-## Troubleshooting
-
-### Authentication Errors
-
-**Problem:** `PugClient::AuthenticationError: Authentication failed`
-
-**Solutions:**
-- Verify your `client_id` and `client_secret` are correct
-- Check that you're using the right environment (production vs staging credentials)
-- Ensure your credentials haven't expired or been revoked
-- Try authenticating manually: `client.authenticate!`
-
-```ruby
-# Debug authentication
-begin
-  client.authenticate!
-  puts "Authenticated successfully!"
-rescue PugClient::AuthenticationError => e
-  puts "Auth failed: #{e.message}"
-  puts "Using client_id: #{client.client_id}"
-  puts "Auth endpoint: #{client.auth_endpoint}"
-end
-```
-
-### Token Expiration
-
-**Problem:** Getting 401 errors after initial authentication
-
-**Solution:** Tokens expire after a certain time. Use `ensure_authenticated!` before API calls:
-
-```ruby
-# Automatically refresh if expired
-client.ensure_authenticated!
-namespace = client.namespace('my-videos')
-
-# Or check manually
-if client.token_expired?
-  client.authenticate!
-end
-```
-
-### Resource Not Found
-
-**Problem:** `PugClient::ResourceNotFound` error
-
-**Solutions:**
-- Verify the resource exists: `client.videos.each { |v| puts v.id }`
-- Check for typos in the resource ID
-- Ensure you have permission to access the resource
-- Verify you're using the correct environment (production vs staging)
-- Confirm you're using the correct namespace: `client.namespace.id`
-
-### Upload Errors
-
-**Problem:** Upload fails or content type rejected
-
-**Solutions:**
-- Only MP4 format is currently supported: `content_type: 'video/mp4'`
-- Ensure file is readable: `File.open('video.mp4', 'rb')`
-- Check file size and timeout settings
-- Verify video processing with `wait_until_ready`
-
-### Connection Timeouts
-
-**Problem:** Requests timing out
-
-**Solution:** Increase timeout values:
-
-```ruby
-client = PugClient::Client.new(
-  namespace: ENV['PUG_NAMESPACE'],
-  client_id: ENV['PUG_CLIENT_ID'],
-  client_secret: ENV['PUG_CLIENT_SECRET'],
-  connection_options: {
-    request: {
-      open_timeout: 10,  # Increase from default
-      timeout: 30        # Increase from default
-    }
-  }
-)
-```
-
-## API Design
-
-This gem uses a **resource-based API design** for core resources (Namespace, Video), providing:
-
-- **Object-oriented interface** - Resources are first-class Ruby objects
-- **Lazy enumeration** - Efficient iteration over large collections
-- **Automatic dirty tracking** - Changes tracked and converted to JSON Patch
-- **Idiomatic Ruby** - snake_case attributes, natural mutations, Enumerable support
-
-Other resources (livestreams, campaigns, webhooks, etc.) currently use the client-centric API. These will be migrated to the resource-based pattern in future versions.
 
 ## Requirements
 
@@ -737,14 +451,15 @@ Other resources (livestreams, campaigns, webhooks, etc.) currently use the clien
 
 ## Contributing
 
-Contributions are welcome! If you want to contribute to this gem, please see [DEVELOPING.md](DEVELOPING.md) for development setup, architecture details, and guidelines for adding new features.
+Contributions are welcome! If you want to contribute to this gem, please see [CLAUDE.md](https://git.scorevision.com/fantag/pug-client-ruby/-/blob/main/CLAUDE.md) for development setup, architecture details, and guidelines for adding new features.
 
 ## License
 
-This project is licensed under the MIT License - see the [gemspec](pug-client.gemspec) for details.
+This project is licensed under the MIT License - see the [gemspec](https://git.scorevision.com/fantag/pug-client-ruby/-/blob/main/pug-client.gemspec) for details.
 
 ## Links
 
-- **Homepage**: http://git.scorevision.com/fantag/pug-client-ruby
-- **Issues**: http://git.scorevision.com/fantag/pug-client-ruby/issues
-- **Development Guide**: [DEVELOPING.md](DEVELOPING.md)
+- **Homepage:** [https://git.scorevision.com/fantag/pug-client-ruby](https://git.scorevision.com/fantag/pug-client-ruby)
+- **Issues:** [https://git.scorevision.com/fantag/pug-client-ruby/-/issues](https://git.scorevision.com/fantag/pug-client-ruby/-/issues)
+- **Documentation:** [https://gitdoc.scorevision.com/fantag/pug-client-ruby/](https://gitdoc.scorevision.com/fantag/pug-client-ruby/)
+- **Development Guide:** [CLAUDE.md](https://git.scorevision.com/fantag/pug-client-ruby/-/blob/main/CLAUDE.md)
