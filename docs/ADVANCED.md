@@ -28,7 +28,7 @@ The client automatically tracks changes to resources and generates [RFC 6902 JSO
 ### Example: Simple Attribute Change
 
 ```ruby
-video = client.video('video-123')
+video = client.video('66eb0905-e5e3-4f01-9adf-0a57ce92edc5')
 puts video.changed?  # => false
 
 # Make a simple change
@@ -54,7 +54,7 @@ puts video.changed?  # => false (clean after save)
 The dirty tracking system uses `TrackedHash` to detect changes at any depth:
 
 ```ruby
-video = client.video('video-123')
+video = client.video('66eb0905-e5e3-4f01-9adf-0a57ce92edc5')
 
 # Nested mutations are tracked
 video.metadata[:labels][:team] = 'eagles'
@@ -89,7 +89,7 @@ All Hash values are automatically wrapped in `TrackedHash`, which:
 
 ```ruby
 # When you load a resource:
-video = client.video('video-123')
+video = client.video('66eb0905-e5e3-4f01-9adf-0a57ce92edc5')
 # video.metadata is a TrackedHash
 # video.metadata[:labels] is also a TrackedHash
 
@@ -102,7 +102,7 @@ video.metadata[:labels].delete(:old_key)  # Tracked
 ### Checking Changes
 
 ```ruby
-video = client.video('video-123')
+video = client.video('66eb0905-e5e3-4f01-9adf-0a57ce92edc5')
 
 # Check if resource has changed
 video.changed?  # => false
@@ -120,7 +120,7 @@ video.changed?  # => true
 ### Discarding Changes
 
 ```ruby
-video = client.video('video-123')
+video = client.video('66eb0905-e5e3-4f01-9adf-0a57ce92edc5')
 video.metadata[:labels][:status] = 'draft'
 
 # Discard local changes and reload from API
@@ -135,7 +135,7 @@ puts video.changed?  # => false
 Attempting to modify read-only attributes raises `ValidationError`:
 
 ```ruby
-video = client.video('video-123')
+video = client.video('66eb0905-e5e3-4f01-9adf-0a57ce92edc5')
 
 # These are read-only and will raise errors
 video.id = 'new-id'  # => PugClient::ValidationError
@@ -193,7 +193,7 @@ puts video.metadata[:labels][:created_by]  # From metadata.labels.createdBy
 ### Example: Ruby → API Translation
 
 ```ruby
-video = client.video('video-123')
+video = client.video('66eb0905-e5e3-4f01-9adf-0a57ce92edc5')
 
 # You write in snake_case:
 video.metadata[:labels][:created_by] = 'user@example.com'
@@ -420,7 +420,7 @@ client = PugClient::Client.new(namespace: 'my-namespace')
 client.authenticate!  # Initial authentication
 
 # Make requests
-video = client.video('video-123')
+video = client.video('66eb0905-e5e3-4f01-9adf-0a57ce92edc5')
 
 # Wait a long time (token expires)
 sleep 7200  # 2 hours
@@ -492,7 +492,7 @@ Raised when a resource doesn't exist (404 response):
 
 ```ruby
 begin
-  video = client.video('non-existent-id')
+  video = client.video('00000000-0000-0000-0000-000000000000')
 rescue PugClient::ResourceNotFound => e
   puts "Resource not found: #{e.resource_type} #{e.id}"
   # => "Resource not found: Video non-existent-id"
@@ -506,7 +506,7 @@ Raised for invalid modifications or input validation failures:
 ```ruby
 # Read-only attribute modification
 begin
-  video = client.video('video-123')
+  video = client.video('66eb0905-e5e3-4f01-9adf-0a57ce92edc5')
   video.id = 'new-id'
 rescue PugClient::ValidationError => e
   puts e.message  # => "Cannot modify read-only attribute: id"
@@ -556,7 +556,7 @@ end
 Raised when attempting to modify a frozen resource (after deletion):
 
 ```ruby
-video = client.video('video-123')
+video = client.video('66eb0905-e5e3-4f01-9adf-0a57ce92edc5')
 video.delete
 
 # Resource is now frozen
@@ -658,7 +658,7 @@ results = client.paginate('path', per_page: 50)
 **Use Resource Classes** (preferred):
 ```ruby
 # ✅ Preferred - uses resource class
-video = client.video('video-123')
+video = client.video('66eb0905-e5e3-4f01-9adf-0a57ce92edc5')
 video.metadata[:labels][:status] = 'ready'
 video.save
 ```
@@ -666,7 +666,7 @@ video.save
 **Use Low-Level Methods** (when necessary):
 ```ruby
 # ✅ Acceptable - for debugging or custom endpoints
-response = client.get('videos/video-123')
+response = client.get('videos/66eb0905-e5e3-4f01-9adf-0a57ce92edc5')
 puts response.inspect
 
 # ✅ Acceptable - for unsupported resources
@@ -678,7 +678,7 @@ custom_data = client.get('custom-endpoint')
 The last response is always available:
 
 ```ruby
-video = client.video('video-123')
+video = client.video('66eb0905-e5e3-4f01-9adf-0a57ce92edc5')
 
 # Access last HTTP response
 puts client.last_response.status   # => 200
@@ -877,7 +877,7 @@ PugClient.authenticate!
 # Use anywhere
 namespace = PugClient.namespace
 videos = PugClient.videos.first(10)
-video = PugClient.video('video-123')
+video = PugClient.video('66eb0905-e5e3-4f01-9adf-0a57ce92edc5')
 
 # Still works with configured namespace
 video.metadata[:labels][:status] = 'ready'

@@ -30,10 +30,10 @@ client = PugClient::Client.new(namespace: 'my-videos')
 client.authenticate!
 
 # Find a resource by ID (uses default namespace)
-resource = client.video('video-123')
+resource = client.video('66eb0905-e5e3-4f01-9adf-0a57ce92edc5')
 
 # Override namespace for specific call
-resource = client.video('video-123', namespace: 'other-namespace')
+resource = client.video('66eb0905-e5e3-4f01-9adf-0a57ce92edc5', namespace: 'other-namespace')
 
 # Update attributes with dirty tracking
 resource.metadata[:labels][:status] = 'ready'

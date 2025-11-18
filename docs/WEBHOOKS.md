@@ -32,7 +32,7 @@ puts "Events: #{webhook.events.join(', ')}"
 
 ```ruby
 # Get a webhook
-webhook = client.webhook('webhook-123')
+webhook = client.webhook('634e7000-41c1-4dbb-9a4d-bf1981e5e748')
 
 # Update webhook URL or events
 webhook.url = 'https://example.com/webhooks/pug-v2'
@@ -64,7 +64,7 @@ all_webhooks = client.webhooks.first(50)
 ## Deleting Webhooks
 
 ```ruby
-webhook = client.webhook('webhook-123')
+webhook = client.webhook('634e7000-41c1-4dbb-9a4d-bf1981e5e748')
 webhook.delete
 puts "Webhook deleted"
 ```

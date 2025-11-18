@@ -129,7 +129,7 @@ All resources follow this pattern:
 
 ```ruby
 # 1. Load resource from API (uses default namespace from client config)
-video = client.video('video-123')
+video = client.video('66eb0905-e5e3-4f01-9adf-0a57ce92edc5')
 # Original attributes stored for comparison
 
 # 2. Mutate nested hash (TrackedHash notifies resource)
@@ -556,7 +556,7 @@ client = PugClient::Client.new(
 
 # Now use client methods directly
 livestreams = client.livestreams.first(10)
-video = client.video('video-123')
+video = client.video('66eb0905-e5e3-4f01-9adf-0a57ce92edc5')
 
 # Override namespace for specific calls
 other_videos = client.videos(namespace: 'other-namespace')

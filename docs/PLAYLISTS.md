@@ -32,7 +32,7 @@ puts "Created playlist: #{playlist.id}"
 
 ```ruby
 # Get a playlist
-playlist = client.playlist('playlist-123')
+playlist = client.playlist('4fb6957c-c4d3-4b67-8d36-18e2c90bfb32')
 
 # Update metadata
 playlist.metadata[:labels][:status] = 'published'
@@ -49,7 +49,7 @@ playlist.reload
 
 ```ruby
 # Get specific playlist by ID
-playlist = client.playlist('playlist-123')
+playlist = client.playlist('4fb6957c-c4d3-4b67-8d36-18e2c90bfb32')
 
 # If you need to list playlists, consider storing playlist IDs
 # in your application database or using campaign/namespace metadata
@@ -58,7 +58,7 @@ playlist = client.playlist('playlist-123')
 ## Deleting Playlists
 
 ```ruby
-playlist = client.playlist('playlist-123')
+playlist = client.playlist('4fb6957c-c4d3-4b67-8d36-18e2c90bfb32')
 playlist.delete
 puts "Playlist deleted"
 ```

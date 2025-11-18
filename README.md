@@ -48,7 +48,7 @@ client.videos.first(10).each do |video|
 end
 
 # Get and update a video
-video = client.video('video-123')
+video = client.video('66eb0905-e5e3-4f01-9adf-0a57ce92edc5')
 video.metadata[:labels][:status] = 'ready'
 video.metadata[:labels][:featured] = true
 video.save  # Auto-generates JSON Patch
@@ -219,10 +219,10 @@ All resources support:
 
 ```ruby
 # Find by ID (uses configured namespace)
-resource = client.video('video-123')
+resource = client.video('66eb0905-e5e3-4f01-9adf-0a57ce92edc5')
 
 # Override namespace for specific call
-resource = client.video('video-123', namespace: 'other-namespace')
+resource = client.video('66eb0905-e5e3-4f01-9adf-0a57ce92edc5', namespace: 'other-namespace')
 
 # Update with automatic dirty tracking
 resource.metadata[:labels][:status] = 'ready'
@@ -247,7 +247,7 @@ client.videos.first(20).each { |v| puts v.id }
 Resources automatically track changes and generate JSON Patch operations:
 
 ```ruby
-video = client.video('video-123')
+video = client.video('66eb0905-e5e3-4f01-9adf-0a57ce92edc5')
 
 # Make multiple changes
 video.metadata[:labels][:status] = 'ready'
@@ -393,7 +393,7 @@ The gem provides specific error classes for graceful error handling:
 
 ```ruby
 begin
-  video = client.video('non-existent')
+  video = client.video('00000000-0000-0000-0000-000000000000')
 rescue PugClient::ResourceNotFound => e
   puts "Video not found: #{e.message}"
 rescue PugClient::ValidationError => e

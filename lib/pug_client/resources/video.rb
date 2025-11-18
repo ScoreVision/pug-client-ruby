@@ -8,7 +8,7 @@ module PugClient
     # and contain video content, metadata, and playback information.
     #
     # @example Find a video
-    #   video = client.video('my-namespace', 'video-123')
+    #   video = client.video('66eb0905-e5e3-4f01-9adf-0a57ce92edc5')
     #   puts video.started_at
     #
     # @example Create a video

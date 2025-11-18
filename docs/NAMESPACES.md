@@ -24,7 +24,7 @@ puts namespace.created_at   # => 2025-01-15 10:00:00 UTC
 puts namespace.metadata     # => { labels: {...}, annotations: {...} }
 
 # Get a specific namespace by ID
-other_namespace = client.namespace('other-videos')
+other_namespace = client.namespace('acme-corp')
 ```
 
 ## Listing Namespaces

@@ -12,7 +12,7 @@ Simulcast Targets enable restreaming - broadcasting your livestream to multiple 
 
 ```ruby
 # Get the livestream
-livestream = client.livestream('livestream-123')
+livestream = client.livestream('23b0324a-bc2b-4b7a-a313-1b15af485db6')
 
 # Add YouTube simulcast target
 youtube_target = client.create_simulcast_target(
@@ -85,7 +85,7 @@ custom_target = client.create_simulcast_target(
 
 ```ruby
 # Get a simulcast target
-target = client.simulcast_target('target-123')
+target = client.simulcast_target('863f34e0-6c06-4a76-b162-2787e48af550')
 
 # Update metadata
 target.metadata[:labels][:enabled] = false
@@ -104,7 +104,7 @@ target.reload
 
 ```ruby
 # List all simulcast targets for a livestream
-livestream = client.livestream('livestream-123')
+livestream = client.livestream('23b0324a-bc2b-4b7a-a313-1b15af485db6')
 targets = client.simulcast_targets(livestream.id, namespace: livestream.namespace_id)
 
 targets.each do |target|
@@ -118,7 +118,7 @@ end
 ## Deleting Simulcast Targets
 
 ```ruby
-target = client.simulcast_target('target-123')
+target = client.simulcast_target('863f34e0-6c06-4a76-b162-2787e48af550')
 target.delete
 puts "Simulcast target deleted"
 ```

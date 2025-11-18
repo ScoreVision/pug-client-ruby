@@ -103,7 +103,7 @@ Working with existing videos:
 
 ```ruby
 # Fetch video by ID
-video = client.video('video-123')
+video = client.video('66eb0905-e5e3-4f01-9adf-0a57ce92edc5')
 
 # Check current metadata
 puts "Current labels: #{video.metadata[:labels]}"
@@ -179,7 +179,7 @@ The clip command creates a new video from a portion of an existing video:
 
 ```ruby
 # Get source video
-source_video = client.video('video-123')
+source_video = client.video('66eb0905-e5e3-4f01-9adf-0a57ce92edc5')
 puts "Source duration: #{source_video.duration}ms"
 
 # Create a 30-second clip starting at 2 minutes
@@ -260,7 +260,7 @@ end.first(10)
 ## Getting Video Playback Information
 
 ```ruby
-video = client.video('video-123')
+video = client.video('66eb0905-e5e3-4f01-9adf-0a57ce92edc5')
 
 # Wait until ready if recently uploaded
 video.wait_until_ready if video.renditions.nil? || video.renditions.empty?
@@ -285,7 +285,7 @@ puts video.playback.inspect
 ## Deleting Videos
 
 ```ruby
-video = client.video('video-123')
+video = client.video('66eb0905-e5e3-4f01-9adf-0a57ce92edc5')
 
 # Delete the video
 video.delete
@@ -302,7 +302,7 @@ end
 ## Accessing Parent Namespace
 
 ```ruby
-video = client.video('video-123')
+video = client.video('66eb0905-e5e3-4f01-9adf-0a57ce92edc5')
 
 # Get the namespace this video belongs to
 namespace = video.namespace

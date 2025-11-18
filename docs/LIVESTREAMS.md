@@ -38,7 +38,7 @@ puts "Watch at: #{livestream.playback_urls[:hls]}"
 
 ```ruby
 # Get a livestream
-livestream = client.livestream('livestream-123')
+livestream = client.livestream('23b0324a-bc2b-4b7a-a313-1b15af485db6')
 
 # Check stream status
 puts "Status: #{livestream.stream_status}"
@@ -83,7 +83,7 @@ LiveStreams support simulcasting - streaming to multiple platforms simultaneousl
 
 ```ruby
 # Get livestream
-livestream = client.livestream('livestream-123')
+livestream = client.livestream('23b0324a-bc2b-4b7a-a313-1b15af485db6')
 
 # Add simulcast target (YouTube, Facebook, Twitch, custom RTMP)
 target = client.create_simulcast_target(
@@ -100,7 +100,7 @@ puts "Added simulcast target: #{target.id}"
 ## Deleting LiveStreams
 
 ```ruby
-livestream = client.livestream('livestream-123')
+livestream = client.livestream('23b0324a-bc2b-4b7a-a313-1b15af485db6')
 livestream.delete
 puts "LiveStream deleted"
 ```

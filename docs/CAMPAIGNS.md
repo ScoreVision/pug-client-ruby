@@ -32,7 +32,7 @@ puts "Created campaign: #{campaign.id}"
 
 ```ruby
 # Get a campaign
-campaign = client.campaign('campaign-123')
+campaign = client.campaign('summer-2024-campaign')
 
 # Update metadata
 campaign.metadata[:labels][:status] = 'active'
@@ -60,7 +60,7 @@ recent_campaigns = client.campaigns.first(10)
 ## Deleting Campaigns
 
 ```ruby
-campaign = client.campaign('campaign-123')
+campaign = client.campaign('summer-2024-campaign')
 campaign.delete
 puts "Campaign deleted"
 ```
