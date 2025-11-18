@@ -225,7 +225,6 @@ Maximum file sizes for video uploads are enforced by the API and cloud storage l
 **Recommendations:**
 - Test uploads with your typical file sizes
 - Implement progress tracking for large uploads
-- Consider chunked uploads for very large files (if supported by API)
 - Monitor upload timeouts and adjust connection settings accordingly
 
 ```ruby

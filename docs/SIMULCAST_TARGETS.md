@@ -92,7 +92,7 @@ target.metadata[:labels][:enabled] = false
 target.metadata[:labels][:reason] = 'maintenance'
 target.save
 
-# Update target details (if supported)
+# Update target details
 target.name = 'YouTube Live - Updated'
 target.save
 
