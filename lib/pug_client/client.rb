@@ -155,10 +155,10 @@ module PugClient
     # @return [Resources::Video] Video resource
     # @raise [ResourceNotFound] if video doesn't exist
     # @example
-    #   video = client.video('video-123')
+    #   video = client.video('66eb0905-e5e3-4f01-9adf-0a57ce92edc5')
     #   puts video.started_at
     # @example Override namespace
-    #   video = client.video('video-123', namespace: 'other-namespace')
+    #   video = client.video('66eb0905-e5e3-4f01-9adf-0a57ce92edc5', namespace: 'other-namespace')
     def video(video_id, namespace: @namespace, **options)
       Resources::Video.find(self, namespace, video_id, options)
     end
@@ -199,7 +199,7 @@ module PugClient
     # @return [Resources::LiveStream] LiveStream resource
     # @raise [ResourceNotFound] if livestream doesn't exist
     # @example
-    #   livestream = client.livestream('livestream-123')
+    #   livestream = client.livestream('23b0324a-bc2b-4b7a-a313-1b15af485db6')
     #   puts livestream.status
     def livestream(livestream_id, namespace: @namespace, **options)
       Resources::LiveStream.find(self, namespace, livestream_id, options)
@@ -232,18 +232,18 @@ module PugClient
       Resources::LiveStream.all(self, namespace, options)
     end
 
-    # Fetch a specific campaign by ID or slug
+    # Fetch a specific campaign by slug
     #
-    # @param campaign_id [String] Campaign ID or slug
+    # @param campaign_slug [String] Campaign slug identifier
     # @param namespace [String] Namespace identifier (defaults to configured namespace)
     # @param options [Hash] Optional parameters
     # @return [Resources::Campaign] Campaign resource
     # @raise [ResourceNotFound] if campaign doesn't exist
     # @example
-    #   campaign = client.campaign('summer-2024')
+    #   campaign = client.campaign('summer-2024-campaign')
     #   puts campaign.slug
-    def campaign(campaign_id, namespace: @namespace, **options)
-      Resources::Campaign.find(self, namespace, campaign_id, options)
+    def campaign(campaign_slug, namespace: @namespace, **options)
+      Resources::Campaign.find(self, namespace, campaign_slug, options)
     end
 
     # Create a new campaign
@@ -308,7 +308,7 @@ module PugClient
     # @return [Resources::Playlist] Playlist resource
     # @raise [ResourceNotFound] if playlist doesn't exist
     # @example
-    #   playlist = client.playlist('playlist-123')
+    #   playlist = client.playlist('4fb6957c-c4d3-4b67-8d36-18e2c90bfb32')
     #   puts playlist.videos
     def playlist(playlist_id, namespace: @namespace, **options)
       Resources::Playlist.find(self, namespace, playlist_id, options)
@@ -349,7 +349,7 @@ module PugClient
     # @return [Resources::SimulcastTarget] SimulcastTarget resource
     # @raise [ResourceNotFound] if simulcast target doesn't exist
     # @example
-    #   target = client.simulcast_target('target-123')
+    #   target = client.simulcast_target('863f34e0-6c06-4a76-b162-2787e48af550')
     #   puts target.url
     def simulcast_target(target_id, namespace: @namespace, **options)
       Resources::SimulcastTarget.find(self, namespace, target_id, options)
@@ -390,7 +390,7 @@ module PugClient
     # @return [Resources::Webhook] Webhook resource
     # @raise [ResourceNotFound] if webhook doesn't exist
     # @example
-    #   webhook = client.webhook('webhook-123')
+    #   webhook = client.webhook('634e7000-41c1-4dbb-9a4d-bf1981e5e748')
     #   puts webhook.url
     def webhook(webhook_id, namespace: @namespace, **options)
       Resources::Webhook.find(self, namespace, webhook_id, options)

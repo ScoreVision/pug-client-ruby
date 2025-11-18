@@ -27,21 +27,21 @@ module PugClient
         super(client: client, attributes: attributes)
       end
 
-      # Find a campaign by ID or slug
+      # Find a campaign by slug
       #
       # @param client [PugClient::Client] The API client
       # @param namespace_id [String] The namespace ID
-      # @param campaign_id [String] The campaign ID or slug
+      # @param campaign_slug [String] The campaign slug identifier
       # @param options [Hash] Additional options
       # @return [Campaign] The campaign resource
       # @raise [ResourceNotFound] If the campaign doesn't exist
       # @raise [NetworkError] If the API request fails
-      def self.find(client, namespace_id, campaign_id, options = {})
-        response = client.get("namespaces/#{namespace_id}/campaigns/#{campaign_id}", options)
+      def self.find(client, namespace_id, campaign_slug, options = {})
+        response = client.get("namespaces/#{namespace_id}/campaigns/#{campaign_slug}", options)
         new(client: client, namespace_id: namespace_id, attributes: response)
       rescue StandardError => e
         if e.is_a?(Faraday::ResourceNotFound) || (e.respond_to?(:response) && e.response&.status == 404)
-          raise ResourceNotFound.new('Campaign', campaign_id)
+          raise ResourceNotFound.new('Campaign', campaign_slug)
         end
 
         raise NetworkError, e.message
