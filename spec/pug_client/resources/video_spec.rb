@@ -444,13 +444,55 @@ RSpec.describe PugClient::Resources::Video do
 
     let(:file_io) { StringIO.new('video data') }
 
-    it 'validates content type' do
-      expect do
-        video.upload(file_io, filename: 'video.avi', content_type: 'video/avi')
-      end.to raise_error(PugClient::ValidationError, %r{Unsupported content type: video/avi})
+    context 'with auto-detected content type' do
+      %w[mp4 mov avi wmv].each do |ext|
+        it "accepts .#{ext} files" do
+          upload_info = { url: 'https://storage.example.com/upload' }
+          allow(video).to receive(:upload_url).and_return(upload_info)
+
+          conn = double('Faraday Connection')
+          response = double('Response', success?: true)
+
+          allow(Faraday).to receive(:new).and_yield(double.as_null_object).and_return(conn)
+          allow(conn).to receive(:put).and_return(response)
+
+          expect do
+            video.upload(file_io, filename: "video.#{ext}")
+          end.not_to raise_error
+        end
+      end
+
+      it 'rejects unsupported extensions' do
+        expect do
+          video.upload(file_io, filename: 'video.mkv')
+        end.to raise_error(PugClient::ValidationError, /Unknown file extension: .mkv/)
+      end
     end
 
-    it 'uploads file with valid content type' do
+    context 'with explicit content type' do
+      it 'accepts explicit content_type parameter' do
+        upload_info = { url: 'https://storage.example.com/upload' }
+        allow(video).to receive(:upload_url).and_return(upload_info)
+
+        conn = double('Faraday Connection')
+        response = double('Response', success?: true)
+
+        allow(Faraday).to receive(:new).and_yield(double.as_null_object).and_return(conn)
+        allow(conn).to receive(:put).and_return(response)
+
+        # Can override content type for files without standard extensions
+        result = video.upload(file_io, filename: 'data.bin', content_type: 'video/mp4')
+        expect(result).to be true
+      end
+
+      it 'rejects invalid content_type override' do
+        expect do
+          video.upload(file_io, filename: 'video.mkv', content_type: 'video/x-matroska')
+        end.to raise_error(PugClient::ValidationError, /Unsupported content type: video\/x-matroska/)
+      end
+    end
+
+    it 'uploads file successfully with auto-detected content type' do
       upload_info = {
         url: 'https://storage.example.com/upload',
         headers: { 'X-Custom-Header' => 'value' }
@@ -588,9 +630,65 @@ RSpec.describe PugClient::Resources::Video do
     end
   end
 
+  describe 'CONTENT_TYPE_MAP' do
+    it 'maps file extensions to MIME types' do
+      expect(described_class::CONTENT_TYPE_MAP).to eq({
+                                                         '.mp4' => 'video/mp4',
+                                                         '.mov' => 'video/quicktime',
+                                                         '.avi' => 'video/x-msvideo',
+                                                         '.wmv' => 'video/x-ms-wmv'
+                                                       })
+    end
+  end
+
   describe 'SUPPORTED_CONTENT_TYPES' do
-    it 'includes video/mp4' do
-      expect(described_class::SUPPORTED_CONTENT_TYPES).to include('video/mp4')
+    it 'includes all 4 supported formats' do
+      expect(described_class::SUPPORTED_CONTENT_TYPES).to contain_exactly(
+        'video/mp4',
+        'video/quicktime',
+        'video/x-msvideo',
+        'video/x-ms-wmv'
+      )
+    end
+  end
+
+  describe '#detect_content_type' do
+    let(:video) do
+      described_class.new(
+        client: client,
+        namespace_id: namespace_id,
+        attributes: { id: video_id }
+      )
+    end
+
+    it 'detects content type from filename extension' do
+      expect(video.send(:detect_content_type, 'video.mp4')).to eq('video/mp4')
+      expect(video.send(:detect_content_type, 'video.mov')).to eq('video/quicktime')
+      expect(video.send(:detect_content_type, 'video.avi')).to eq('video/x-msvideo')
+      expect(video.send(:detect_content_type, 'video.wmv')).to eq('video/x-ms-wmv')
+    end
+
+    it 'is case-insensitive' do
+      expect(video.send(:detect_content_type, 'VIDEO.MP4')).to eq('video/mp4')
+      expect(video.send(:detect_content_type, 'video.MOV')).to eq('video/quicktime')
+      expect(video.send(:detect_content_type, 'Video.Avi')).to eq('video/x-msvideo')
+    end
+
+    it 'handles filenames with path' do
+      expect(video.send(:detect_content_type, '/path/to/video.mp4')).to eq('video/mp4')
+      expect(video.send(:detect_content_type, 'folder/video.mov')).to eq('video/quicktime')
+    end
+
+    it 'raises ValidationError for unknown extensions' do
+      expect do
+        video.send(:detect_content_type, 'video.mkv')
+      end.to raise_error(PugClient::ValidationError, /Unknown file extension: .mkv/)
+    end
+
+    it 'raises ValidationError for files without extension' do
+      expect do
+        video.send(:detect_content_type, 'video')
+      end.to raise_error(PugClient::ValidationError, /Unknown file extension:/)
     end
   end
 end

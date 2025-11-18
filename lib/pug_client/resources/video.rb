@@ -29,8 +29,18 @@ module PugClient
         renditions playback_urls thumbnail_url playback source
       ].freeze
 
-      # Supported video content types for upload
-      SUPPORTED_CONTENT_TYPES = ['video/mp4'].freeze
+      # Map file extensions to MIME types
+      # See docs/VIDEO_PROCESSING.md for complete specifications
+      CONTENT_TYPE_MAP = {
+        '.mp4' => 'video/mp4',           # MPEG-4 (recommended)
+        '.mov' => 'video/quicktime',     # QuickTime
+        '.avi' => 'video/x-msvideo',     # Audio Video Interleave
+        '.wmv' => 'video/x-ms-wmv'       # Windows Media Video
+      }.freeze
+
+      # Supported file formats: .mp4, .mov, .wmv, .avi
+      # All formats are transcoded to H.264/AAC 720p30 by the backend
+      SUPPORTED_CONTENT_TYPES = CONTENT_TYPE_MAP.values.freeze
 
       attr_reader :namespace_id
 
@@ -239,25 +249,33 @@ module PugClient
       # Upload a video file
       #
       # Gets a signed upload URL and uploads the file directly to cloud storage.
-      # Currently only MP4 files are supported.
+      # Content type is automatically detected from the filename extension.
+      # Supported formats: .mp4, .mov, .avi, .wmv
       #
       # @param file_io [IO] IO object containing the file data
       # @param filename [String] Filename for the upload
-      # @param content_type [String] Content type (default: 'video/mp4')
+      # @param content_type [String, nil] Content type (auto-detected from filename if not provided)
       # @return [Boolean] true if upload succeeded
       # @raise [ValidationError] if content type is not supported
       # @raise [NetworkError] if upload fails
-      # @example
+      # @example Auto-detect content type from filename
       #   File.open('video.mp4', 'rb') do |file|
       #     video.upload(file, filename: 'video.mp4')
       #   end
       #   video.wait_until_ready
-      def upload(file_io, filename:, content_type: 'video/mp4')
+      # @example Override content type
+      #   File.open('data.bin', 'rb') do |file|
+      #     video.upload(file, filename: 'data.bin', content_type: 'video/mp4')
+      #   end
+      def upload(file_io, filename:, content_type: nil)
+        # Auto-detect content type from filename if not provided
+        content_type ||= detect_content_type(filename)
+
         # Validate content type
         unless SUPPORTED_CONTENT_TYPES.include?(content_type)
           raise ValidationError,
                 "Unsupported content type: #{content_type}. " \
-                "Currently only #{SUPPORTED_CONTENT_TYPES.join(', ')} is supported."
+                "Supported formats: #{CONTENT_TYPE_MAP.keys.join(', ')}. "
         end
 
         upload_info = upload_url(filename)
@@ -321,6 +339,23 @@ module PugClient
       #   video.namespace.metadata
       def namespace
         @namespace ||= Namespace.find(@client, @namespace_id)
+      end
+
+      private
+
+      # Detect content type from filename extension
+      #
+      # @param filename [String] The filename
+      # @return [String] The detected MIME type
+      # @raise [ValidationError] if extension is not recognized
+      # @api private
+      def detect_content_type(filename)
+        ext = File.extname(filename).downcase
+        CONTENT_TYPE_MAP[ext] || raise(
+          ValidationError,
+          "Unknown file extension: #{ext}. " \
+          "Supported extensions: #{CONTENT_TYPE_MAP.keys.join(', ')}"
+        )
       end
     end
   end
