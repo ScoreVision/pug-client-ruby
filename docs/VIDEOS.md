@@ -220,7 +220,7 @@ clip.save
 video = client.video('66eb0905-e5e3-4f01-9adf-0a57ce92edc5')
 
 # Wait until ready if recently uploaded
-video.wait_until_ready if video.renditions.nil? || video.renditions.empty?
+video.wait_until_ready
 
 # Access playback URLs
 puts "HLS URL: #{video.playback_urls[:hls]}"
