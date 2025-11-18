@@ -13,70 +13,43 @@ This document describes the constraints, limitations, and specifications for the
 
 ### Supported Upload Formats
 
-**Currently only MP4 format is supported for video uploads.**
+The Pug API accepts these video file formats for upload:
+
+| Format | Extension | MIME Type |
+|--------|-----------|-----------|
+| MPEG-4 | `.mp4` | `video/mp4` *(recommended)* |
+| QuickTime | `.mov` | `video/quicktime` |
+| AVI | `.avi` | `video/x-msvideo` |
+| Windows Media | `.wmv` | `video/x-ms-wmv` |
+
+Content type is automatically detected from the file extension:
 
 ```ruby
-# This will work
-File.open('video.mp4', 'rb') do |file|
-  video.upload(file, filename: 'video.mp4', content_type: 'video/mp4')
-end
-
-# This will raise ValidationError
-File.open('video.avi', 'rb') do |file|
-  video.upload(file, filename: 'video.avi', content_type: 'video/avi')
-  # => PugClient::ValidationError: Unsupported content type: video/avi
-end
-```
-
-### Video Processing Workflow
-
-1. **Upload** - Client uploads MP4 file to cloud storage via signed URL
-2. **Backend Transcoding** - Video is processed by backend transcoding pipeline
-3. **Renditions Generated** - Multiple quality renditions are created
-4. **Ready for Playback** - Video becomes available with playback URLs
-
-```ruby
-# Complete workflow
-video = client.create_video(Time.now.utc.iso8601)
+# Upload any supported format - content type auto-detected
 File.open('game.mp4', 'rb') { |f| video.upload(f, filename: 'game.mp4') }
-
-# Wait for processing to complete
-video.wait_until_ready(timeout: 600, interval: 5)
-
-# Access playback URLs once ready
-puts video.playback_urls  # => { hls: '...', dash: '...', mp4: '...' }
-puts video.renditions     # => Array of quality variants
+File.open('game.mov', 'rb') { |f| video.upload(f, filename: 'game.mov') }
+File.open('game.avi', 'rb') { |f| video.upload(f, filename: 'game.avi') }
+File.open('game.wmv', 'rb') { |f| video.upload(f, filename: 'game.wmv') }
 ```
 
-### Output Formats
+### Processing Pipeline
+
+All uploaded videos are automatically transcoded to a standardized format:
+
+- **Output Video:** H.264 Main Profile Level 4.0, 720p, 30fps, yuv420p
+- **Output Audio:** AAC 128kbps stereo 48kHz
+- **Input:** Accepts any video/audio codec supported by ffmpeg (permissive validation)
+- **Processing:** Automatic deinterlacing, audio sync correction, aspect ratio preservation
 
 After processing, videos are available in multiple streaming formats:
 
 - **HLS** (HTTP Live Streaming) - For iOS, Safari, and broad compatibility
-- **DASH** (Dynamic Adaptive Streaming over HTTP) - For adaptive bitrate streaming
-- **MP4** - Direct progressive download/playback
+- **DASH** (Dynamic Adaptive Streaming) - For adaptive bitrate streaming
+- **MP4** (Progressive Download) - For direct download/playback
 
-### Detailed Video Specifications
+### Complete Technical Specifications
 
-**Note:** Detailed specifications for the following are managed by the backend transcoding pipeline and are not enforced or validated by this Ruby client:
-
-- Video codecs (H.264, H.265, etc.)
-- Audio codecs (AAC, MP3, etc.)
-- Resolution constraints (maximum width/height)
-- Bitrate specifications
-- Frame rate limits
-- Quality presets and rendition ladders
-
-**Questions for transcoding pipeline documentation:**
-- What video codecs are supported in uploaded MP4 files? (H.264, H.265, etc.)
-- What are the minimum and maximum resolutions supported?
-- What audio codecs are required/supported?
-- What are the maximum file sizes for uploads?
-- What rendition qualities are generated? (360p, 480p, 720p, 1080p, 4K?)
-- What are the bitrate ranges for each quality level?
-- Are there frame rate constraints (e.g., max 60fps)?
-
-For detailed transcoding specifications, consult the Pug Video API backend documentation or the transcoding pipeline configuration.
+For detailed information about supported codecs, input specifications, transcoding pipeline, upload examples, best practices, and troubleshooting, see **[VIDEO_PROCESSING.md](VIDEO_PROCESSING.md)**.
 
 ## Metadata Structure
 
@@ -291,6 +264,7 @@ For specific file size limits, please consult the [Pug Video API documentation](
 ## Related Documentation
 
 - [README.md](../README.md) - Getting started guide
+- [VIDEO_PROCESSING.md](VIDEO_PROCESSING.md) - Complete video format and transcoding specifications
 - [RESOURCES.md](RESOURCES.md) - Detailed resource documentation
 - [ADVANCED.md](ADVANCED.md) - Advanced topics and internals
 - [RAILS_INTEGRATION.md](RAILS_INTEGRATION.md) - Rails-specific examples

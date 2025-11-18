@@ -59,6 +59,7 @@ Click on any resource above to view detailed documentation with examples.
 ## Additional Documentation
 
 - [README.md](../README.md) - Getting started guide
+- [VIDEO_PROCESSING.md](VIDEO_PROCESSING.md) - Complete video format and transcoding specifications
 - [API_LIMITATIONS.md](API_LIMITATIONS.md) - API constraints and metadata details
 - [ADVANCED.md](ADVANCED.md) - Advanced topics and internals
 - [RAILS_INTEGRATION.md](RAILS_INTEGRATION.md) - Rails-specific examples

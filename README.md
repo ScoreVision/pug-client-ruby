@@ -424,7 +424,8 @@ end
 
 - **[RESOURCES.md](docs/RESOURCES.md)** - Overview and index of all resource guides
   - [Namespaces](docs/NAMESPACES.md), [Videos](docs/VIDEOS.md), [LiveStreams](docs/LIVESTREAMS.md), [Campaigns](docs/CAMPAIGNS.md), [Playlists](docs/PLAYLISTS.md), [Webhooks](docs/WEBHOOKS.md), [Simulcast Targets](docs/SIMULCAST_TARGETS.md)
-- **[API_LIMITATIONS.md](docs/API_LIMITATIONS.md)** - Video processing constraints, metadata structure, rate limits
+- **[VIDEO_PROCESSING.md](docs/VIDEO_PROCESSING.md)** - Complete technical reference for video formats, transcoding specifications, and processing pipeline
+- **[API_LIMITATIONS.md](docs/API_LIMITATIONS.md)** - API constraints, metadata structure, rate limits, and file size limits
 - **[ADVANCED.md](docs/ADVANCED.md)** - Deep dive into dirty tracking, lazy enumeration, attribute translation, error handling, configuration
 - **[RAILS_INTEGRATION.md](docs/RAILS_INTEGRATION.md)** - Rails-specific examples (controllers, background jobs, testing)
 - **[CLAUDE.md](https://git.scorevision.com/fantag/pug-client-ruby/-/blob/main/CLAUDE.md)** - Development guide and architecture details

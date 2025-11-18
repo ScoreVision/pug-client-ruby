@@ -17,6 +17,39 @@ These attributes are set by the API and cannot be modified:
 - `playback` - Playback information object
 - `source` - Source video information
 
+## Uploading Videos
+
+### Supported Formats
+
+The API accepts MP4, MOV, AVI, and WMV formats. The content type is automatically detected from the file extension, making uploads simple and straightforward.
+
+**All formats are automatically transcoded to H.264/AAC 720p30** for optimal playback across all devices.
+
+**For complete technical specifications**, see [VIDEO_PROCESSING.md](VIDEO_PROCESSING.md) including:
+- Detailed input/output codec specifications
+- Resolution and frame rate handling
+- Transcoding pipeline features
+- Performance optimization tips
+
+### Upload Examples
+
+```ruby
+# Simple upload - content type auto-detected from filename
+File.open('game.mp4', 'rb') do |file|
+  video.upload(file, filename: 'game.mp4')
+end
+
+# Works with all supported formats
+File.open('game.mov', 'rb') { |f| video.upload(f, filename: 'game.mov') }
+File.open('game.avi', 'rb') { |f| video.upload(f, filename: 'game.avi') }
+File.open('game.wmv', 'rb') { |f| video.upload(f, filename: 'game.wmv') }
+
+# Override content type if needed (rare)
+File.open('video.dat', 'rb') do |file|
+  video.upload(file, filename: 'video.dat', content_type: 'video/mp4')
+end
+```
+
 ## Example 1: Create Video + Upload + Get Playback URLs
 
 Complete workflow from creation to playback:
@@ -278,6 +311,7 @@ puts "Video belongs to namespace: #{namespace.id}"
 
 ## Related Documentation
 
+- [VIDEO_PROCESSING.md](VIDEO_PROCESSING.md) - Complete video format and transcoding specifications
 - [RESOURCES.md](RESOURCES.md) - Overview of all resources
 - [API_LIMITATIONS.md](API_LIMITATIONS.md) - API constraints and metadata details
 - [ADVANCED.md](ADVANCED.md) - Advanced topics and internals
