@@ -314,64 +314,29 @@ client.videos.each do |video|
     break  # No more API requests
   end
 end
-
-# Or use find
-target_video = client.videos.find do |video|
-  video.metadata[:labels][:special] == true
-end
-```
-
-### Example: Enumerable Methods
-
-The enumerator supports all Ruby Enumerable methods:
-
-```ruby
-# Map (fetches all pages)
-video_ids = client.videos.map(&:id)
-
-# Select (fetches all pages)
-ready_videos = client.videos.select do |v|
-  v.metadata[:labels][:status] == 'ready'
-end
-
-# First (fetches only needed pages)
-first_10 = client.videos.first(10)
-
-# Count (fetches all pages - use with caution!)
-total = client.videos.count
-
-# Any? (stops when condition is true)
-has_featured = client.videos.any? do |v|
-  v.metadata[:labels][:featured] == true
-end
 ```
 
 ### Performance Considerations
 
+The enumerator supports Ruby Enumerable methods, but be careful with operations that fetch all pages:
+
 **Efficient** (only fetches necessary pages):
 ```ruby
+# Get first N videos
 client.videos.first(20)
-client.videos.first(100).each { |v| puts v.id }
-client.videos.find { |v| v.id == 'target' }
-client.videos.any? { |v| v.metadata[:labels][:special] }
+
+# Iterate with early break
+client.videos.each { |v| break if condition }
 ```
 
-**Potentially Inefficient** (fetches all pages):
+**Inefficient** (fetches all pages - use with caution):
 ```ruby
-client.videos.to_a  # Fetches all pages into array
-client.videos.count  # Fetches all pages to count
-client.videos.map(&:id)  # Fetches all pages
-client.videos.select { |v| ... }  # Fetches all pages
+client.videos.to_a      # Fetches ALL pages into array
+client.videos.count     # Fetches ALL pages to count
+client.videos.map(&:id) # Fetches ALL pages
 ```
 
-**Best Practice**: Use `.first(N)` to limit results:
-```ruby
-# Instead of:
-all_ready = client.videos.select { |v| v.status == 'ready' }
-
-# Do this:
-first_100_ready = client.videos.first(100).select { |v| v.status == 'ready' }
-```
+**Important**: The API only supports lookup by ID. There is no API-level filtering by labels or other attributes. If you need to work with specific videos, fetch them by ID directly.
 
 ### Pagination Parameters
 

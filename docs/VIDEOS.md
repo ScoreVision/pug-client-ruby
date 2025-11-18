@@ -17,6 +17,17 @@ These attributes are set by the API and cannot be modified:
 - `playback` - Playback information object
 - `source` - Source video information
 
+## API Query Limitations
+
+**Important:** The Pug Video API only supports fetching videos by their unique ID. There is no API-level filtering by labels, metadata, or other attributes.
+
+To work with multiple videos:
+- Use pagination with `.each` to iterate efficiently
+- Use `.first(N)` to fetch a specific number of videos
+- Use `.to_a` to explicitly fetch all videos (warning: may fetch thousands of records)
+
+If you need to find specific videos, you must fetch them by ID directly using `client.video(id)`.
+
 ## Uploading Videos
 
 ### Supported Formats
@@ -151,26 +162,11 @@ client.videos.first(20).each do |video|
   puts "  Status: #{labels[:status]}"
 end
 
-# Filter videos locally using Ruby enumerable methods
-puts "\nFeatured videos:"
-featured = client.videos.select do |video|
-  video.metadata[:labels][:featured] == true
-end.first(10)
-
-featured.each { |v| puts "  - #{v.id}" }
-
-# Find specific video by criteria
-touchdown_video = client.videos.find do |video|
-  labels = video.metadata[:labels]
-  labels[:highlight_type] == 'touchdown' && labels[:quarter] == '4'
-end
-
-if touchdown_video
-  puts "\nFound touchdown video: #{touchdown_video.id}"
-end
-
 # Get videos from different namespace
 other_videos = client.videos(namespace: 'other-namespace').first(10)
+
+# To fetch all videos explicitly (warning: may fetch thousands of records)
+all_videos = client.videos.to_a
 ```
 
 ## Example 4: Create Video Clip
@@ -217,45 +213,6 @@ clip.save
 ```
 
 **Note:** Currently, `clip` is the only video command available in the API.
-
-## Filtering Videos
-
-The Pug API supports both API-level and client-side filtering:
-
-**API-Level Filtering** (if supported by endpoint):
-
-```ruby
-# Pass query parameters to the API
-videos = client.videos(query: {
-  filter: {
-    'metadata.labels.team': 'eagles',
-    'metadata.labels.status': 'ready'
-  },
-  sort: '-created_at',  # Sort by created_at descending
-  page: { size: 20 }
-})
-
-videos.each { |v| puts v.id }
-```
-
-**Client-Side Filtering**:
-
-```ruby
-# Use Ruby enumerable methods (filters after fetching)
-eagles_videos = client.videos.select do |video|
-  video.metadata[:labels][:team] == 'eagles'
-end.first(20)
-
-# Multiple conditions
-touchdown_highlights = client.videos.select do |video|
-  labels = video.metadata[:labels]
-  labels[:team] == 'eagles' &&
-  labels[:highlight_type] == 'touchdown' &&
-  labels[:status] == 'ready'
-end.first(10)
-```
-
-**Performance Note:** API-level filtering is more efficient for large datasets as it reduces data transfer. Client-side filtering is easier but fetches all pages until the filter matches enough items.
 
 ## Getting Video Playback Information
 

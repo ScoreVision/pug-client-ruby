@@ -284,8 +284,8 @@ end
 # Get first N (only fetches necessary pages)
 recent_videos = client.videos.first(20)
 
-# Full Enumerable support
-featured = client.videos.select { |v| v.metadata[:labels][:featured] }
+# Explicitly fetch all (warning: may fetch thousands of records)
+all_videos = client.videos.to_a
 ```
 
 **Learn more:** [ADVANCED.md#lazy-enumeration](docs/ADVANCED.md#lazy-enumeration)

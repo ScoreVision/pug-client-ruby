@@ -56,7 +56,7 @@ module PugClient
       #
       # @param client [PugClient::Client] The API client
       # @param namespace_id [String] The namespace ID
-      # @param options [Hash] Additional options for filtering/pagination
+      # @param options [Hash] Additional options for pagination
       # @return [ResourceEnumerator] Enumerator for lazy loading livestreams
       def self.all(client, namespace_id, options = {})
         ResourceEnumerator.new(

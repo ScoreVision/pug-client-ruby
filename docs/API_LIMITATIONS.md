@@ -57,11 +57,11 @@ The Pug API provides two distinct metadata fields with different purposes:
 
 ### metadata.labels - User-Defined Categorization
 
-**Purpose:** API consumer use - Categorization, filtering, and user-defined organization
+**Purpose:** API consumer use - Categorization, tagging, and user-defined organization
 
 **Structure:** Flat key-value pairs (strings, numbers, booleans)
 
-**Use Cases:** Tagging, filtering, search, custom categorization
+**Use Cases:** Tagging, custom categorization, application-level organization
 
 **Sports Video Examples:**
 
@@ -101,18 +101,6 @@ video.metadata[:labels] = {
 
 # Save changes
 video.save
-```
-
-**Querying with Labels:**
-
-```ruby
-# Filter videos locally by labels
-touchdown_videos = client.videos.select do |v|
-  v.metadata[:labels][:highlight_type] == 'touchdown'
-end
-
-# Or use API filtering (if supported by endpoint)
-videos = client.videos(query: { filter: { 'metadata.labels.team': 'eagles' } })
 ```
 
 ### metadata.annotations - System/Backend Metadata

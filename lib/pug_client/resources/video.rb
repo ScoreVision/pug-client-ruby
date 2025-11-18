@@ -81,7 +81,7 @@ module PugClient
       #
       # @param client [Client] The API client
       # @param namespace_id [String] Namespace identifier
-      # @param options [Hash] Optional parameters (query filters, pagination)
+      # @param options [Hash] Optional parameters (pagination settings)
       # @return [ResourceEnumerator] Lazy enumerator for videos
       # @example
       #   Video.all(client, 'my-namespace').each { |v| puts v.id }

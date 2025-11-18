@@ -72,7 +72,7 @@ module PugClient
       # List all namespaces (returns enumerator)
       #
       # @param client [Client] The API client
-      # @param options [Hash] Optional parameters (query filters, pagination)
+      # @param options [Hash] Optional parameters (pagination settings)
       # @return [ResourceEnumerator] Lazy enumerator for namespaces
       # @example
       #   PugClient::Resources::Namespace.all(client).each { |ns| puts ns.id }
@@ -172,7 +172,7 @@ module PugClient
 
       # Get videos in this namespace (lazy enumerator)
       #
-      # @param options [Hash] Optional parameters (query filters, pagination)
+      # @param options [Hash] Optional parameters (pagination settings)
       # @return [ResourceEnumerator] Lazy enumerator for videos
       # @example
       #   namespace.videos.each { |video| puts video.id }
