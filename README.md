@@ -208,7 +208,7 @@ All resources follow a consistent, object-oriented pattern with automatic dirty 
 - **[Namespaces](docs/NAMESPACES.md)** - Organize content into logical groups
 - **[Videos](docs/VIDEOS.md)** - Core video management with upload, playback, and clipping
 - **[LiveStreams](docs/LIVESTREAMS.md)** - Real-time video streaming
-- **[Campaigns](docs/CAMPAIGNS.md)** - Group related content for distribution
+- **[Campaigns](docs/CAMPAIGNS.md)** - Ad campaigns with pre-roll/post-roll videos
 - **[Playlists](docs/PLAYLISTS.md)** - Ordered collections for sequential playback
 - **[Webhooks](docs/WEBHOOKS.md)** - Real-time event notifications
 - **[Simulcast Targets](docs/SIMULCAST_TARGETS.md)** - Restream to multiple platforms (YouTube, Facebook, Twitch, custom RTMP)

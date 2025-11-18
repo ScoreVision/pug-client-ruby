@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.email      = ['zach.norris@scorevision.com']
 
   spec.summary    = 'A ruby client for Pug video API service.'
-  spec.description = 'Ruby client library for the Pug Video API. Provides a simple, intuitive interface for managing video resources, livestreams, campaigns, and more. Modeled after Octokit.rb with support for automatic pagination, configurable environments, and Auth0 authentication.'
+  spec.description = 'Ruby client library for the Pug Video API. Provides a simple, intuitive interface for managing video resources, livestreams, ad campaigns, and more. Modeled after Octokit.rb with support for automatic pagination, configurable environments, and Auth0 authentication.'
   spec.homepage   = 'http://git.scorevision.com/fantag/pug-client-ruby'
   spec.license    = 'MIT'
   spec.required_ruby_version = '>= 3.4'

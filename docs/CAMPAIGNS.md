@@ -1,6 +1,6 @@
 # Campaigns
 
-Campaigns group related content together for organization and distribution.
+Ad campaigns for content monetization with pre-roll and post-roll video ads.
 
 ## Read-Only Attributes
 

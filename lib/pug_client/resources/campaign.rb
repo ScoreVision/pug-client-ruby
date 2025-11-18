@@ -2,7 +2,7 @@
 
 module PugClient
   module Resources
-    # Campaign resource represents a campaign within a namespace
+    # Ad campaign resource for monetizing content with pre-roll and post-roll videos
     #
     # Campaigns use slug-based identifiers in API URLs while also having
     # a server-generated UUID id field.

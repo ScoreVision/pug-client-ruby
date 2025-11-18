@@ -7,7 +7,7 @@ This document provides an overview and links to detailed documentation for each 
 - [Namespaces](NAMESPACES.md) - Organize content into logical groups
 - [Videos](VIDEOS.md) - Upload, process, clip, and playback videos
 - [LiveStreams](LIVESTREAMS.md) - Real-time video streaming
-- [Campaigns](CAMPAIGNS.md) - Group related content for organization
+- [Campaigns](CAMPAIGNS.md) - Ad campaigns with pre-roll/post-roll videos
 - [Playlists](PLAYLISTS.md) - Ordered collections of videos
 - [Webhooks](WEBHOOKS.md) - Real-time event notifications
 - [Simulcast Targets](SIMULCAST_TARGETS.md) - Multi-platform streaming
