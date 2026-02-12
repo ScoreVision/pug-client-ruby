@@ -50,7 +50,8 @@ module PugClient
 
     # Convert attribute path to JSON Pointer
     #
-    # Converts Ruby snake_case attribute paths to API camelCase JSON Pointer format.
+    # Keeps snake_case paths as-is because the API applies JSON Patch operations
+    # against raw Ecto structs with snake_case keys.
     # Note: JSON Patch paths do NOT include /attributes prefix (unlike JSON:API GET responses).
     #
     # @param path_array [Array<Symbol>] Path as array of symbols
@@ -60,28 +61,22 @@ module PugClient
     #   # => "/metadata/labels/status"
     # @api private
     def self.json_pointer(path_array)
-      # Convert each part to camelCase for API
-      api_path = path_array.map do |key|
-        AttributeTranslator.camelize(key.to_s)
-      end
-
-      "/#{api_path.join('/')}"
+      "/#{path_array.map(&:to_s).join('/')}"
     end
 
     # Convert value to API format
     #
-    # - Converts TrackedHash to regular Hash
-    # - Transforms keys from snake_case to camelCase
+    # Converts TrackedHash to regular Hash but preserves snake_case keys,
+    # since the API applies patches against raw Ecto structs.
     #
     # @param value [Object] Value to convert
-    # @return [Object] API-formatted value
+    # @return [Object] Value with TrackedHash converted to plain Hash
     # @api private
     def self.convert_value(value)
       # Convert TrackedHash to regular Hash
       value = value.to_h if value.is_a?(TrackedHash)
 
-      # Transform keys if it's a hash or array of hashes
-      AttributeTranslator.to_api(value)
+      value
     end
 
     private_class_method :json_pointer, :convert_value
