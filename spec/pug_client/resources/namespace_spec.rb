@@ -243,7 +243,7 @@ RSpec.describe PugClient::Resources::Namespace do
         .with("namespaces/#{namespace_id}", hash_including(
                                               data: array_including(
                                                 hash_including(op: 'replace', path: '/metadata/labels/env'),
-                                                hash_including(op: 'add', path: '/metadata/labels/newKey')
+                                                hash_including(op: 'add', path: '/metadata/labels/new_key')
                                               )
                                             ))
         .and_return({

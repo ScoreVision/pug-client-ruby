@@ -230,6 +230,20 @@ RSpec.describe PugClient::Resource do
         value: 'prod'
       )
     end
+
+    it 'preserves snake_case in patch paths for multi-word attributes' do
+      resource = test_resource_class.new(
+        client: client,
+        attributes: { simulcast_targets: [] }
+      )
+      resource.simulcast_targets = [{ stream_url: 'rtmp://example.com' }]
+
+      patches = resource.generate_patch_operations
+      expect(patches.first).to include(
+        op: 'replace',
+        path: '/simulcast_targets'
+      )
+    end
   end
 
   describe 'abstract methods' do

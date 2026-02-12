@@ -15,7 +15,7 @@ RSpec.describe PugClient::PatchGenerator do
         expect(patches).to eq([
                                 {
                                   op: 'add',
-                                  path: '/newKey',
+                                  path: '/new_key',
                                   value: 'new_value'
                                 }
                               ])
@@ -31,30 +31,30 @@ RSpec.describe PugClient::PatchGenerator do
         expect(patches).to eq([
                                 {
                                   op: 'add',
-                                  path: '/metadata/labels/newKey',
+                                  path: '/metadata/labels/new_key',
                                   value: 'value'
                                 }
                               ])
       end
 
-      it 'converts snake_case keys to camelCase' do
+      it 'preserves snake_case keys in paths' do
         changes = [
           { type: :add, path: [:my_new_key], value: 'value' }
         ]
 
         patches = described_class.generate(changes)
 
-        expect(patches.first[:path]).to eq('/myNewKey')
+        expect(patches.first[:path]).to eq('/my_new_key')
       end
 
-      it 'handles hash values with key transformation' do
+      it 'preserves snake_case keys in hash values' do
         changes = [
           { type: :add, path: [:metadata], value: { my_key: 'value' } }
         ]
 
         patches = described_class.generate(changes)
 
-        expect(patches.first[:value]).to eq({ myKey: 'value' })
+        expect(patches.first[:value]).to eq({ my_key: 'value' })
       end
 
       it 'handles array values' do
@@ -111,24 +111,24 @@ RSpec.describe PugClient::PatchGenerator do
                               ])
       end
 
-      it 'converts snake_case keys to camelCase' do
+      it 'preserves snake_case keys in paths' do
         changes = [
           { type: :replace, path: [:my_field], old_value: 'old', new_value: 'new' }
         ]
 
         patches = described_class.generate(changes)
 
-        expect(patches.first[:path]).to eq('/myField')
+        expect(patches.first[:path]).to eq('/my_field')
       end
 
-      it 'handles hash values with key transformation' do
+      it 'preserves snake_case keys in hash values' do
         changes = [
           { type: :replace, path: [:metadata], old_value: {}, new_value: { my_key: 'value' } }
         ]
 
         patches = described_class.generate(changes)
 
-        expect(patches.first[:value]).to eq({ myKey: 'value' })
+        expect(patches.first[:value]).to eq({ my_key: 'value' })
       end
     end
 
@@ -143,7 +143,7 @@ RSpec.describe PugClient::PatchGenerator do
         expect(patches).to eq([
                                 {
                                   op: 'remove',
-                                  path: '/oldKey'
+                                  path: '/old_key'
                                 }
                               ])
       end
@@ -158,7 +158,7 @@ RSpec.describe PugClient::PatchGenerator do
         expect(patches).to eq([
                                 {
                                   op: 'remove',
-                                  path: '/metadata/labels/oldKey'
+                                  path: '/metadata/labels/old_key'
                                 }
                               ])
       end
@@ -183,7 +183,7 @@ RSpec.describe PugClient::PatchGenerator do
 
         patches = described_class.generate(changes)
 
-        expect(patches.first[:value]).to eq({ myKey: 'value' })
+        expect(patches.first[:value]).to eq({ my_key: 'value' })
       end
 
       it 'handles nested TrackedHash' do
@@ -197,7 +197,7 @@ RSpec.describe PugClient::PatchGenerator do
         patches = described_class.generate(changes)
 
         expect(patches.first[:value]).to eq({
-                                              labels: { myKey: 'value' }
+                                              labels: { my_key: 'value' }
                                             })
       end
     end
@@ -239,7 +239,7 @@ RSpec.describe PugClient::PatchGenerator do
 
         patches = described_class.generate(changes)
 
-        expect(patches.first[:path]).to eq('/level1/level2/level3/deepKey')
+        expect(patches.first[:path]).to eq('/level1/level2/level3/deep_key')
       end
 
       it 'handles complex hash values with nested structures' do
@@ -257,8 +257,8 @@ RSpec.describe PugClient::PatchGenerator do
         patches = described_class.generate(changes)
 
         expect(patches.first[:value]).to eq({
-                                              labels: { myLabel: 'value' },
-                                              annotations: { myAnnotation: 'note' }
+                                              labels: { my_label: 'value' },
+                                              annotations: { my_annotation: 'note' }
                                             })
       end
 
@@ -277,9 +277,22 @@ RSpec.describe PugClient::PatchGenerator do
         patches = described_class.generate(changes)
 
         expect(patches.first[:value]).to eq([
-                                              { itemId: 1, itemName: 'First' },
-                                              { itemId: 2, itemName: 'Second' }
+                                              { item_id: 1, item_name: 'First' },
+                                              { item_id: 2, item_name: 'Second' }
                                             ])
+      end
+    end
+
+    context 'with multi-word attribute names' do
+      it 'preserves snake_case for multi-word paths' do
+        changes = [
+          { type: :add, path: [:simulcast_targets], value: [{ stream_url: 'rtmp://example.com' }] }
+        ]
+
+        patches = described_class.generate(changes)
+
+        expect(patches.first[:path]).to eq('/simulcast_targets')
+        expect(patches.first[:value]).to eq([{ stream_url: 'rtmp://example.com' }])
       end
     end
 
