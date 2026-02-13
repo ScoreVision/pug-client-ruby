@@ -231,7 +231,7 @@ RSpec.describe PugClient::Resource do
       )
     end
 
-    it 'preserves snake_case in patch paths for multi-word attributes' do
+    it 'converts multi-word attributes to camelCase in patch paths' do
       resource = test_resource_class.new(
         client: client,
         attributes: { simulcast_targets: [] }
@@ -241,7 +241,7 @@ RSpec.describe PugClient::Resource do
       patches = resource.generate_patch_operations
       expect(patches.first).to include(
         op: 'replace',
-        path: '/simulcast_targets'
+        path: '/simulcastTargets'
       )
     end
   end

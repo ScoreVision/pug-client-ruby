@@ -244,7 +244,7 @@ RSpec.describe PugClient::Resources::Campaign do
         "namespaces/#{namespace_id}/campaigns/#{campaign_slug}",
         hash_including(
           data: array_including(
-            hash_including(op: 'add', path: '/preroll_video_id'),
+            hash_including(op: 'add', path: '/prerollVideoId'),
             hash_including(op: 'add', path: '/metadata/labels/version')
           )
         )
@@ -424,7 +424,7 @@ RSpec.describe PugClient::Resources::Campaign do
       operations = campaign.generate_patch_operations
 
       expect(operations).to include(
-        hash_including(op: 'add', path: '/preroll_video_id', value: 'video-789')
+        hash_including(op: 'add', path: '/prerollVideoId', value: 'video-789')
       )
       expect(operations).to include(
         hash_including(op: 'add', path: '/metadata/labels/version', value: 'v2')
