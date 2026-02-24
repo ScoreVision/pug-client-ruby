@@ -183,7 +183,7 @@ RSpec.describe PugClient::Resources::NamespaceClient do
           id: client_id,
           secret: client_secret,
           created_at: '2024-01-01T00:00:00Z',
-          updated_at: '2024-01-02T00:00:00Z'
+          modified_at: '2024-01-02T00:00:00Z'
         }
       )
     end
@@ -206,17 +206,17 @@ RSpec.describe PugClient::Resources::NamespaceClient do
       end.to raise_error(PugClient::ValidationError, /read-only.*created_at/i)
     end
 
-    it 'prevents modification of updated_at' do
+    it 'prevents modification of modified_at' do
       expect do
-        namespace_client.updated_at = '2024-02-01T00:00:00Z'
-      end.to raise_error(PugClient::ValidationError, /read-only.*updated_at/i)
+        namespace_client.modified_at = '2024-02-01T00:00:00Z'
+      end.to raise_error(PugClient::ValidationError, /read-only.*modified_at/i)
     end
 
     it 'allows reading read-only attributes' do
       expect(namespace_client.id).to eq(client_id)
       expect(namespace_client.secret).to eq(client_secret)
       expect(namespace_client.created_at).to eq('2024-01-01T00:00:00Z')
-      expect(namespace_client.updated_at).to eq('2024-01-02T00:00:00Z')
+      expect(namespace_client.modified_at).to eq('2024-01-02T00:00:00Z')
     end
   end
 

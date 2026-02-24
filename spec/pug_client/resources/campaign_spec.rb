@@ -375,7 +375,7 @@ RSpec.describe PugClient::Resources::Campaign do
           id: campaign_id,
           slug: campaign_slug,
           created_at: '2024-01-01T00:00:00Z',
-          updated_at: '2024-01-02T00:00:00Z'
+          modified_at: '2024-01-02T00:00:00Z'
         }
       )
     end
@@ -392,16 +392,16 @@ RSpec.describe PugClient::Resources::Campaign do
       end.to raise_error(PugClient::ValidationError, /read-only.*created_at/i)
     end
 
-    it 'prevents modification of updated_at' do
+    it 'prevents modification of modified_at' do
       expect do
-        campaign.updated_at = '2024-02-01T00:00:00Z'
-      end.to raise_error(PugClient::ValidationError, /read-only.*updated_at/i)
+        campaign.modified_at = '2024-02-01T00:00:00Z'
+      end.to raise_error(PugClient::ValidationError, /read-only.*modified_at/i)
     end
 
     it 'allows reading read-only attributes' do
       expect(campaign.id).to eq(campaign_id)
       expect(campaign.created_at).to eq('2024-01-01T00:00:00Z')
-      expect(campaign.updated_at).to eq('2024-01-02T00:00:00Z')
+      expect(campaign.modified_at).to eq('2024-01-02T00:00:00Z')
     end
 
     it 'allows modification of other attributes' do

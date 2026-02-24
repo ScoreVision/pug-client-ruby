@@ -20,7 +20,7 @@ module PugClient
     #   namespace.videos.each { |video| puts video.id }
     class Namespace < Resource
       # Attributes that cannot be modified after creation
-      READ_ONLY_ATTRIBUTES = %i[id created_at updated_at].freeze
+      READ_ONLY_ATTRIBUTES = %i[id created_at modified_at].freeze
 
       # Find namespace by ID
       #

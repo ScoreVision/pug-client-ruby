@@ -25,7 +25,7 @@ module PugClient
     class Video < Resource
       # Attributes that cannot be modified after creation
       READ_ONLY_ATTRIBUTES = %i[
-        id created_at updated_at duration started_at
+        id created_at modified_at duration started_at
         renditions playback_urls thumbnail_url playback source
       ].freeze
 

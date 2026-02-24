@@ -403,7 +403,7 @@ RSpec.describe PugClient::Resources::LiveStream do
           playback_urls: { hls: 'https://playback.example.com/stream.m3u8' },
           thumbnails: ['https://example.com/thumb1.jpg'],
           created_at: '2024-01-01T00:00:00Z',
-          updated_at: '2024-01-02T00:00:00Z'
+          modified_at: '2024-01-02T00:00:00Z'
         }
       )
     end

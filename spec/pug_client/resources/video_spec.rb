@@ -554,7 +554,7 @@ RSpec.describe PugClient::Resources::Video do
         attributes: {
           id: video_id,
           created_at: '2025-01-01T00:00:00Z',
-          updated_at: '2025-01-01T00:00:00Z',
+          modified_at: '2025-01-01T00:00:00Z',
           duration: 120_000,
           renditions: [{ format: 'hls' }],
           playback_urls: { hls: 'https://example.com/video.m3u8' },

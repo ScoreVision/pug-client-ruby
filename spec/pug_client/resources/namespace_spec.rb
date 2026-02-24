@@ -193,7 +193,7 @@ RSpec.describe PugClient::Resources::Namespace do
       attributes: {
         id: namespace_id,
         created_at: '2025-01-01T00:00:00Z',
-        updated_at: '2025-01-01T00:00:00Z',
+        modified_at: '2025-01-01T00:00:00Z',
         metadata: { labels: { env: 'prod' } }
       }
     )
@@ -269,16 +269,16 @@ RSpec.describe PugClient::Resources::Namespace do
       end.to raise_error(PugClient::ValidationError, /Cannot modify read-only attribute: created_at/)
     end
 
-    it 'prevents modification of updated_at' do
+    it 'prevents modification of modified_at' do
       expect do
-        namespace.updated_at = '2025-01-02T00:00:00Z'
-      end.to raise_error(PugClient::ValidationError, /Cannot modify read-only attribute: updated_at/)
+        namespace.modified_at = '2025-01-02T00:00:00Z'
+      end.to raise_error(PugClient::ValidationError, /Cannot modify read-only attribute: modified_at/)
     end
 
     it 'allows reading read-only attributes' do
       expect(namespace.id).to eq(namespace_id)
       expect(namespace.created_at).to eq('2025-01-01T00:00:00Z')
-      expect(namespace.updated_at).to eq('2025-01-01T00:00:00Z')
+      expect(namespace.modified_at).to eq('2025-01-01T00:00:00Z')
     end
   end
 
