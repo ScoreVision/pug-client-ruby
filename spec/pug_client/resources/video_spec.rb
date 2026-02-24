@@ -581,6 +581,18 @@ RSpec.describe PugClient::Resources::Video do
       end.to raise_error(PugClient::ValidationError, /Cannot modify read-only attribute: renditions/)
     end
 
+    it 'prevents modification of playback_start' do
+      expect do
+        video.playback_start = 1000
+      end.to raise_error(PugClient::ValidationError, /Cannot modify read-only attribute: playback_start/)
+    end
+
+    it 'prevents modification of playback_stop' do
+      expect do
+        video.playback_stop = 5000
+      end.to raise_error(PugClient::ValidationError, /Cannot modify read-only attribute: playback_stop/)
+    end
+
     it 'allows reading read-only attributes' do
       expect(video.id).to eq(video_id)
       expect(video.duration).to eq(120_000)
