@@ -12,7 +12,6 @@ module PugClient
         id
         created_at
         modified_at
-        started_at
         stream_status
         stream_urls
         playback_urls
