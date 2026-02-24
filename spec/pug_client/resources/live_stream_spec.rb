@@ -65,7 +65,7 @@ RSpec.describe PugClient::Resources::LiveStream do
               startedAt: '2024-01-01T12:00:00Z',
               metadata: {
                 labels: { event: 'championship' },
-                annotations: { gameId: '12345' }
+                annotations: { game_id: '12345' }
               },
               location: location,
               simulcastTargets: %w[target-1 target-2]

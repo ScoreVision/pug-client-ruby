@@ -186,7 +186,7 @@ RSpec.describe PugClient::PatchGenerator do
         expect(patches.first[:value]).to eq({ myKey: 'value' })
       end
 
-      it 'handles nested TrackedHash' do
+      it 'handles nested TrackedHash and preserves label keys' do
         tracked = PugClient::TrackedHash.new({
                                                labels: PugClient::TrackedHash.new({ my_key: 'value' })
                                              })
@@ -196,8 +196,9 @@ RSpec.describe PugClient::PatchGenerator do
 
         patches = described_class.generate(changes)
 
+        # Label keys are user-defined and preserved as-is
         expect(patches.first[:value]).to eq({
-                                              labels: { myKey: 'value' }
+                                              labels: { my_key: 'value' }
                                             })
       end
     end
@@ -257,8 +258,8 @@ RSpec.describe PugClient::PatchGenerator do
         patches = described_class.generate(changes)
 
         expect(patches.first[:value]).to eq({
-                                              labels: { myLabel: 'value' },
-                                              annotations: { myAnnotation: 'note' }
+                                              labels: { my_label: 'value' },
+                                              annotations: { my_annotation: 'note' }
                                             })
       end
 

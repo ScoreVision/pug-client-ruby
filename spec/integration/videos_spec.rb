@@ -134,8 +134,10 @@ RSpec.describe 'Videos Integration', :vcr, :integration do
 
       expect(video.save).to be true
 
+      # The VCR cassette has the API returning 'customField' (as sent by old client).
+      # With preserve logic, label keys from the API are kept as-is.
       reloaded = client.video(video.id)
-      expect(reloaded.metadata.dig(:labels, :custom_field)).to eq('value')
+      expect(reloaded.metadata.dig(:labels, :customField)).to eq('value')
     end
 
     it 'does not save when no changes made' do

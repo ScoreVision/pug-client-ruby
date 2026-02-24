@@ -31,7 +31,7 @@ module PugClient
           {
             op: 'add',
             path: json_pointer(change[:path], field_mappings),
-            value: convert_value(change[:value])
+            value: convert_value(change[:value], change[:path])
           }
         when :remove
           {
@@ -42,7 +42,7 @@ module PugClient
           {
             op: 'replace',
             path: json_pointer(change[:path], field_mappings),
-            value: convert_value(change[:new_value])
+            value: convert_value(change[:new_value], change[:path])
           }
         end
       end
@@ -76,8 +76,11 @@ module PugClient
     # @param value [Object] Value to convert
     # @return [Object] Value with camelCase keys
     # @api private
-    def self.convert_value(value)
+    def self.convert_value(value, path = [])
       value = value.to_h if value.is_a?(TrackedHash)
+      # If path is inside user-defined keys (labels/annotations), preserve as-is
+      return value if path.any? { |seg| AttributeTranslator::PRESERVE_CHILD_KEYS.include?(seg.to_s.downcase) }
+
       AttributeTranslator.to_api(value)
     end
 

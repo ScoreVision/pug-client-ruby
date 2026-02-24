@@ -73,7 +73,7 @@ RSpec.describe PugClient::AttributeTranslator do
       expect(output).to eq({ started_at: '2025-01-01', ended_at: '2025-01-02' })
     end
 
-    it 'converts nested hashes' do
+    it 'converts nested hashes but preserves label keys' do
       input = {
         'metadata' => {
           'labels' => { 'gameId' => '123' },
@@ -84,7 +84,7 @@ RSpec.describe PugClient::AttributeTranslator do
 
       expect(output).to eq({
                              metadata: {
-                               labels: { game_id: '123' },
+                               labels: { gameId: '123' },
                                created_at: '2025-01-01'
                              }
                            })
@@ -107,7 +107,7 @@ RSpec.describe PugClient::AttributeTranslator do
                            })
     end
 
-    it 'handles mixed nesting (arrays and hashes)' do
+    it 'handles mixed nesting and preserves label keys' do
       input = {
         'videos' => [
           {
@@ -125,7 +125,7 @@ RSpec.describe PugClient::AttributeTranslator do
                                {
                                  id: '1',
                                  metadata: {
-                                   labels: { sport_type: 'basketball' }
+                                   labels: { sportType: 'basketball' }
                                  }
                                }
                              ]
@@ -172,7 +172,7 @@ RSpec.describe PugClient::AttributeTranslator do
       expect(output).to eq({ startedAt: '2025-01-01', endedAt: '2025-01-02' })
     end
 
-    it 'converts nested hashes' do
+    it 'converts nested hashes but preserves label keys' do
       input = {
         metadata: {
           labels: { game_id: '123' },
@@ -183,7 +183,7 @@ RSpec.describe PugClient::AttributeTranslator do
 
       expect(output).to eq({
                              metadata: {
-                               labels: { gameId: '123' },
+                               labels: { game_id: '123' },
                                createdAt: '2025-01-01'
                              }
                            })
@@ -207,7 +207,7 @@ RSpec.describe PugClient::AttributeTranslator do
                            })
     end
 
-    it 'handles mixed nesting (arrays and hashes)' do
+    it 'handles mixed nesting but preserves label keys' do
       input = {
         videos: [
           {
@@ -225,7 +225,7 @@ RSpec.describe PugClient::AttributeTranslator do
                                {
                                  id: '1',
                                  metadata: {
-                                   labels: { sportType: 'basketball' }
+                                   labels: { sport_type: 'basketball' }
                                  }
                                }
                              ]
@@ -258,7 +258,7 @@ RSpec.describe PugClient::AttributeTranslator do
   end
 
   describe 'round-trip conversion' do
-    it 'converts from API to Ruby and back' do
+    it 'converts from API to Ruby and back preserving label keys' do
       api_format = {
         'startedAt' => '2025-01-01',
         'metadata' => {
@@ -268,9 +268,10 @@ RSpec.describe PugClient::AttributeTranslator do
       }
 
       ruby_format = described_class.from_api(api_format)
-      back_to_api = described_class.to_api(ruby_format)
+      # Label keys are preserved as-is (user-defined)
+      expect(ruby_format[:metadata][:labels][:gameId]).to eq('123')
 
-      # Keys should match exactly (API uses standard camelCase)
+      back_to_api = described_class.to_api(ruby_format)
       expect(back_to_api[:startedAt]).to eq('2025-01-01')
       expect(back_to_api[:metadata][:labels][:gameId]).to eq('123')
       expect(back_to_api[:playbackUrls]).to eq(%w[url1 url2])

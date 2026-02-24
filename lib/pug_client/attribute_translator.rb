@@ -93,25 +93,37 @@ module PugClient
       end.join
     end
 
+    # Keys whose children are user-defined and should not be transformed
+    PRESERVE_CHILD_KEYS = %w[labels annotations].freeze
+
     # Recursively transform keys in hashes and arrays
     #
+    # Keys under `labels` and `annotations` are user-defined and preserved as-is.
+    #
     # @param object [Hash, Array, Object] The object to transform
+    # @param preserve_children [Boolean] If true, skip key transformation (inside user-defined keys)
     # @param block [Proc] Block to transform each key
     # @return [Hash, Array, Object] The transformed object
     # @api private
-    def self.deep_transform_keys(object, &block)
+    def self.deep_transform_keys(object, preserve_children: false, &block)
       case object
       when Hash
-        object.each_with_object({}) do |(key, value), result|
-          result[yield(key).to_sym] = deep_transform_keys(value, &block)
-        end
+        transform_hash_keys(object, preserve_children, &block)
       when Array
-        object.map { |element| deep_transform_keys(element, &block) }
+        object.map { |e| deep_transform_keys(e, preserve_children: preserve_children, &block) }
       else
         object
       end
     end
 
-    private_class_method :deep_transform_keys
+    def self.transform_hash_keys(hash, preserve_children, &block)
+      hash.each_with_object({}) do |(key, value), result|
+        new_key = preserve_children ? key.to_sym : yield(key).to_sym
+        preserve = preserve_children || PRESERVE_CHILD_KEYS.include?(key.to_s.downcase)
+        result[new_key] = deep_transform_keys(value, preserve_children: preserve, &block)
+      end
+    end
+
+    private_class_method :deep_transform_keys, :transform_hash_keys
   end
 end
