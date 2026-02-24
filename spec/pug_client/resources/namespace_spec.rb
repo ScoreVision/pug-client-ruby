@@ -202,73 +202,10 @@ RSpec.describe PugClient::Resources::Namespace do
   describe '#save' do
     let(:namespace) { resource_instance }
 
-    it 'returns true when no changes' do
-      expect(namespace.save).to be true
-    end
-
-    it 'sends JSON Patch when changes exist' do
-      namespace.metadata[:labels][:env] = 'staging'
-
-      expect(client).to receive(:patch)
-        .with("namespaces/#{namespace_id}", {
-                data: [
-                  {
-                    op: 'replace',
-                    path: '/metadata/labels/env',
-                    value: 'staging'
-                  }
-                ]
-              })
-        .and_return({
-                      data: {
-                        id: namespace_id,
-                        attributes: {
-                          'metadata' => { 'labels' => { 'env' => 'staging' } }
-                        }
-                      }
-                    })
-
-      result = namespace.save
-
-      expect(result).to be true
-      expect(namespace.changed?).to be false
-      expect(namespace.metadata[:labels][:env]).to eq('staging')
-    end
-
-    it 'handles multiple changes' do
-      namespace.metadata[:labels][:env] = 'staging'
-      namespace.metadata[:labels][:new_key] = 'value'
-
-      expect(client).to receive(:patch)
-        .with("namespaces/#{namespace_id}", hash_including(
-                                              data: array_including(
-                                                hash_including(op: 'replace', path: '/metadata/labels/env'),
-                                                hash_including(op: 'add', path: '/metadata/labels/newKey')
-                                              )
-                                            ))
-        .and_return({
-                      data: {
-                        id: namespace_id,
-                        attributes: {
-                          'metadata' => {
-                            'labels' => { 'env' => 'staging', 'newKey' => 'value' }
-                          }
-                        }
-                      }
-                    })
-
-      namespace.save
-    end
-
-    it 'raises NetworkError on API failure' do
-      namespace.metadata[:labels][:env] = 'staging'
-
-      allow(client).to receive(:patch)
-        .and_raise(StandardError.new('API Error'))
-
+    it 'raises NotImplementedError' do
       expect do
         namespace.save
-      end.to raise_error(PugClient::NetworkError, /API Error/)
+      end.to raise_error(NotImplementedError)
     end
   end
 
@@ -310,36 +247,10 @@ RSpec.describe PugClient::Resources::Namespace do
   describe '#delete' do
     let(:namespace) { resource_instance }
 
-    it 'deletes namespace from API' do
-      expect(client).to receive(:delete)
-        .with("namespaces/#{namespace_id}")
-        .and_return(true)
-
-      result = namespace.delete
-
-      expect(result).to be true
-      expect(namespace).to be_frozen
-    end
-
-    it 'prevents modifications after deletion' do
-      allow(client).to receive(:delete)
-        .with("namespaces/#{namespace_id}")
-        .and_return(true)
-
-      namespace.delete
-
-      expect do
-        namespace.metadata[:labels][:test] = 'value'
-      end.to raise_error(PugClient::ResourceFrozenError)
-    end
-
-    it 'raises NetworkError on API failure' do
-      allow(client).to receive(:delete)
-        .and_raise(StandardError.new('API Error'))
-
+    it 'raises NotImplementedError' do
       expect do
         namespace.delete
-      end.to raise_error(PugClient::NetworkError, /API Error/)
+      end.to raise_error(NotImplementedError)
     end
   end
 

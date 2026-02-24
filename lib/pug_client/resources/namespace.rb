@@ -16,10 +16,6 @@ module PugClient
     #     metadata: { labels: { env: 'prod' } }
     #   )
     #
-    # @example Update namespace metadata
-    #   namespace.metadata[:labels][:status] = 'active'
-    #   namespace.save
-    #
     # @example List videos in namespace
     #   namespace.videos.each { |video| puts video.id }
     class Namespace < Resource
@@ -113,28 +109,6 @@ module PugClient
         new(client: client, attributes: data)
       end
 
-      # Save changes to namespace
-      #
-      # Generates JSON Patch operations from tracked changes and sends to API.
-      # Returns true if there were no changes or save succeeded.
-      #
-      # @return [Boolean] true if saved successfully
-      # @raise [NetworkError] if API request fails
-      # @example
-      #   namespace.metadata[:labels][:env] = 'staging'
-      #   namespace.save  # Sends JSON Patch to API
-      def save
-        return true unless changed?
-
-        operations = generate_patch_operations
-        response = @client.patch("namespaces/#{id}", { data: operations })
-        load_attributes(response)
-        clear_dirty!
-        true
-      rescue StandardError => e
-        raise NetworkError, e.message
-      end
-
       # Reload namespace from API
       #
       # Discards any unsaved changes and reloads from API.
@@ -149,23 +123,6 @@ module PugClient
         load_attributes(response)
         clear_dirty!
         self
-      rescue StandardError => e
-        raise NetworkError, e.message
-      end
-
-      # Delete namespace
-      #
-      # Deletes the namespace from the API and freezes the object to prevent
-      # further modifications.
-      #
-      # @return [Boolean] true if deleted successfully
-      # @raise [NetworkError] if API request fails
-      # @example
-      #   namespace.delete
-      def delete
-        @client.delete("namespaces/#{id}")
-        freeze_resource!
-        true
       rescue StandardError => e
         raise NetworkError, e.message
       end
