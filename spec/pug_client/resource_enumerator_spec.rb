@@ -138,6 +138,22 @@ RSpec.describe PugClient::ResourceEnumerator do
 
       enumerator.to_a
     end
+
+    it 'supports top-level filter option as convenience' do
+      allow(client).to receive(:get) do |_url, params|
+        expect(params[:query][:filter]).to eq({ stream_status: 'active' })
+        []
+      end
+
+      enumerator = described_class.new(
+        client: client,
+        resource_class: mock_resource_class,
+        base_url: 'namespaces/test/livestreams',
+        options: { filter: { stream_status: 'active' } }
+      )
+
+      enumerator.to_a
+    end
   end
 
   describe '#first' do

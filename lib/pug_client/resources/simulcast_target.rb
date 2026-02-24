@@ -52,7 +52,10 @@ module PugClient
       # @param client [PugClient::Client] The API client
       # @param namespace_id [String] The namespace ID
       # @param options [Hash] Additional options for filtering/pagination
+      # @option options [Hash] :filter Filter parameters (snake_case keys auto-translate to camelCase)
       # @return [ResourceEnumerator] Enumerator for lazy loading simulcast targets
+      # @example With filters
+      #   SimulcastTarget.all(client, 'my-ns', filter: { url: 'rtmp://...' })
       def self.all(client, namespace_id, options = {})
         ResourceEnumerator.new(
           client: client,
