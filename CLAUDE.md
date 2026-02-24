@@ -13,7 +13,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Dual API: module-level (singleton) and instance-level configuration
 - OAuth2 authentication via Auth0 client credentials flow
 
-**Version:** 0.1.0 (not yet published)
+**Version:** 1.0.0 (not yet published)
 **Ruby:** >= 3.4
 **Main Dependencies:** Faraday (>= 2.14)
 
