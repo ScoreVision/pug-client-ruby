@@ -14,6 +14,19 @@ module PugClient
         modified_at
       ].freeze
 
+      # Supported webhook action strings for event subscriptions
+      #
+      # @example Subscribe to video events
+      #   client.create_webhook(url, ['video.ready', 'video.deleted'])
+      # @example Subscribe to all livestream events
+      #   actions = Webhook::ACTIONS.select { |a| a.start_with?('livestream.') }
+      ACTIONS = %w[
+        video.ready video.source.uploaded video.edited video.deleted
+        livestream.published livestream.unpublished livestream.disabled livestream.enabled
+        simulcasttarget.created simulcasttarget.edited simulcasttarget.started
+        simulcasttarget.stopped simulcasttarget.deleted
+      ].freeze
+
       attr_reader :namespace_id
 
       # Initialize a new Webhook resource
