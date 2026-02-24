@@ -100,10 +100,10 @@ RSpec.describe PugClient::Resources::Campaign do
             attributes: {
               name: campaign_name,
               slug: campaign_slug,
-              prerollVideoId: 'video-123',
-              postrollVideoId: 'video-456',
-              startTime: '2024-06-01T00:00:00Z',
-              endTime: '2024-08-31T23:59:59Z',
+              prerollId: 'video-123',
+              postrollId: 'video-456',
+              start: '2024-06-01T00:00:00Z',
+              end: '2024-08-31T23:59:59Z',
               metadata: {
                 labels: { season: 'summer' },
                 annotations: { description: 'Summer campaign' }
@@ -127,8 +127,8 @@ RSpec.describe PugClient::Resources::Campaign do
         namespace_id,
         campaign_name,
         campaign_slug,
-        preroll_video_id: 'video-123',
-        postroll_video_id: 'video-456',
+        preroll_id: 'video-123',
+        postroll_id: 'video-456',
         start_time: start_time,
         end_time: end_time,
         metadata: {
@@ -151,7 +151,7 @@ RSpec.describe PugClient::Resources::Campaign do
             attributes: hash_including(
               name: campaign_name,
               slug: campaign_slug,
-              startTime: '2024-01-01T12:00:00Z'
+              start: '2024-01-01T12:00:00Z'
             )
           )
         )
@@ -237,14 +237,14 @@ RSpec.describe PugClient::Resources::Campaign do
     end
 
     it 'handles multiple changes' do
-      campaign.preroll_video_id = 'new-video-123'
+      campaign.preroll_id = 'new-video-123'
       campaign.metadata[:labels][:version] = 'v2'
 
       expect(client).to receive(:patch).with(
         "namespaces/#{namespace_id}/campaigns/#{campaign_slug}",
         hash_including(
           data: array_including(
-            hash_including(op: 'add', path: '/prerollVideoId'),
+            hash_including(op: 'add', path: '/prerollId'),
             hash_including(op: 'add', path: '/metadata/labels/version')
           )
         )
@@ -289,14 +289,14 @@ RSpec.describe PugClient::Resources::Campaign do
   it_behaves_like 'has namespace association'
 
   describe '#preroll_video' do
-    it 'fetches preroll video when preroll_video_id is set' do
+    it 'fetches preroll video when preroll_id is set' do
       campaign = described_class.new(
         client: client,
         namespace_id: namespace_id,
         attributes: {
           id: campaign_id,
           slug: campaign_slug,
-          preroll_video_id: 'video-123'
+          preroll_id: 'video-123'
         }
       )
 
@@ -316,7 +316,7 @@ RSpec.describe PugClient::Resources::Campaign do
       expect(video.id).to eq('video-123')
     end
 
-    it 'returns nil when preroll_video_id is not set' do
+    it 'returns nil when preroll_id is not set' do
       campaign = described_class.new(
         client: client,
         namespace_id: namespace_id,
@@ -328,14 +328,14 @@ RSpec.describe PugClient::Resources::Campaign do
   end
 
   describe '#postroll_video' do
-    it 'fetches postroll video when postroll_video_id is set' do
+    it 'fetches postroll video when postroll_id is set' do
       campaign = described_class.new(
         client: client,
         namespace_id: namespace_id,
         attributes: {
           id: campaign_id,
           slug: campaign_slug,
-          postroll_video_id: 'video-456'
+          postroll_id: 'video-456'
         }
       )
 
@@ -355,7 +355,7 @@ RSpec.describe PugClient::Resources::Campaign do
       expect(video.id).to eq('video-456')
     end
 
-    it 'returns nil when postroll_video_id is not set' do
+    it 'returns nil when postroll_id is not set' do
       campaign = described_class.new(
         client: client,
         namespace_id: namespace_id,
@@ -405,7 +405,7 @@ RSpec.describe PugClient::Resources::Campaign do
     end
 
     it 'allows modification of other attributes' do
-      expect { campaign.preroll_video_id = 'new-video' }.not_to raise_error
+      expect { campaign.preroll_id = 'new-video' }.not_to raise_error
       expect { campaign.metadata = { labels: { test: 'value' } } }.not_to raise_error
     end
   end
@@ -418,13 +418,13 @@ RSpec.describe PugClient::Resources::Campaign do
     let(:campaign) { resource_instance }
 
     it 'generates correct patch operations for multiple changes' do
-      campaign.preroll_video_id = 'video-789'
+      campaign.preroll_id = 'video-789'
       campaign.metadata[:labels][:version] = 'v2'
 
       operations = campaign.generate_patch_operations
 
       expect(operations).to include(
-        hash_including(op: 'add', path: '/prerollVideoId', value: 'video-789')
+        hash_including(op: 'add', path: '/prerollId', value: 'video-789')
       )
       expect(operations).to include(
         hash_including(op: 'add', path: '/metadata/labels/version', value: 'v2')

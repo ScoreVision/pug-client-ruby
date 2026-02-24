@@ -185,7 +185,7 @@ module PugClient
       #
       # @param name [String] Campaign display name (required, 2-256 chars)
       # @param slug [String] Campaign slug identifier (required, 1-32 chars, alphanumeric + dashes)
-      # @param options [Hash] Optional parameters (preroll_video_id, postroll_video_id,
+      # @param options [Hash] Optional parameters (preroll_id, postroll_id,
       #   start_time, end_time, metadata)
       # @return [Campaign] The created campaign
       # @example

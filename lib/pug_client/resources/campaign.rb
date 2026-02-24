@@ -15,6 +15,10 @@ module PugClient
         version
       ].freeze
 
+      # Maps Ruby attribute names to API field names for non-standard translations.
+      # start_time/end_time map to start/end in the API (not startTime/endTime).
+      FIELD_MAPPINGS = { start_time: 'start', end_time: 'end' }.freeze
+
       attr_reader :namespace_id
 
       # Initialize a new Campaign resource
@@ -68,35 +72,44 @@ module PugClient
       # @param namespace_id [String] The namespace ID
       # @param name [String] The campaign display name (required, 2-256 chars)
       # @param slug [String] The campaign slug identifier (required, 1-32 chars, alphanumeric + dashes)
-      # @param options [Hash] Optional attributes (preroll_video_id, postroll_video_id,
+      # @param options [Hash] Optional attributes (preroll_id, postroll_id,
       #   start_time, end_time, metadata)
       # @return [Campaign] The created campaign resource
       # @raise [NetworkError] If the API request fails
       def self.create(client, namespace_id, name, slug, options = {})
-        # Convert Time objects to ISO8601 strings
-        options = options.dup
-        options[:start_time] = options[:start_time].utc.iso8601 if options[:start_time].is_a?(Time)
-        options[:end_time] = options[:end_time].utc.iso8601 if options[:end_time].is_a?(Time)
-
-        # Add required fields
-        options[:name] = name
-        options[:slug] = slug
-
-        # Convert to API format (camelCase)
-        attributes = AttributeTranslator.to_api(options)
-
-        body = {
-          data: {
-            type: 'campaigns',
-            attributes: attributes
-          }
-        }
+        attributes = build_create_attributes(name, slug, options)
+        body = { data: { type: 'campaigns', attributes: attributes } }
 
         response = client.post("namespaces/#{namespace_id}/campaigns", body)
         new(client: client, namespace_id: namespace_id, attributes: response)
       rescue StandardError => e
         raise NetworkError, e.message
       end
+
+      # Build API-formatted attributes for campaign creation
+      # @api private
+      def self.build_create_attributes(name, slug, options)
+        options = coerce_time_fields(options.merge(name: name, slug: slug))
+        mapped = apply_field_mappings(options)
+        AttributeTranslator.to_api(mapped)
+      end
+
+      # Convert Time objects to ISO8601 strings
+      # @api private
+      def self.coerce_time_fields(options)
+        options = options.dup
+        options[:start_time] = options[:start_time].utc.iso8601 if options[:start_time].is_a?(Time)
+        options[:end_time] = options[:end_time].utc.iso8601 if options[:end_time].is_a?(Time)
+        options
+      end
+
+      # Rename Ruby attribute keys to their API field names via FIELD_MAPPINGS
+      # @api private
+      def self.apply_field_mappings(hash)
+        hash.transform_keys { |k| FIELD_MAPPINGS.key?(k) ? FIELD_MAPPINGS[k].to_sym : k }
+      end
+
+      private_class_method :build_create_attributes, :coerce_time_fields, :apply_field_mappings
 
       # Instantiate a campaign from API response data
       #
@@ -174,22 +187,22 @@ module PugClient
         @current_attributes[:slug]
       end
 
-      # Get the preroll video if preroll_video_id is set
+      # Get the preroll video if preroll_id is set
       #
       # @return [Video, nil] The preroll video or nil
       def preroll_video
-        return nil unless @current_attributes[:preroll_video_id]
+        return nil unless @current_attributes[:preroll_id]
 
-        @preroll_video ||= Video.find(@client, @namespace_id, @current_attributes[:preroll_video_id])
+        @preroll_video ||= Video.find(@client, @namespace_id, @current_attributes[:preroll_id])
       end
 
-      # Get the postroll video if postroll_video_id is set
+      # Get the postroll video if postroll_id is set
       #
       # @return [Video, nil] The postroll video or nil
       def postroll_video
-        return nil unless @current_attributes[:postroll_video_id]
+        return nil unless @current_attributes[:postroll_id]
 
-        @postroll_video ||= Video.find(@client, @namespace_id, @current_attributes[:postroll_video_id])
+        @postroll_video ||= Video.find(@client, @namespace_id, @current_attributes[:postroll_id])
       end
 
       # Human-readable representation of the campaign

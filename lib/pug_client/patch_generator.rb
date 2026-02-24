@@ -24,24 +24,24 @@ module PugClient
     #     {type: :remove, path: [:metadata, :labels, :old_key]}
     #   ]
     #   patches = PatchGenerator.generate(changes)
-    def self.generate(changes)
+    def self.generate(changes, field_mappings: {})
       changes.map do |change|
         case change[:type]
         when :add
           {
             op: 'add',
-            path: json_pointer(change[:path]),
+            path: json_pointer(change[:path], field_mappings),
             value: convert_value(change[:value])
           }
         when :remove
           {
             op: 'remove',
-            path: json_pointer(change[:path])
+            path: json_pointer(change[:path], field_mappings)
           }
         when :replace
           {
             op: 'replace',
-            path: json_pointer(change[:path]),
+            path: json_pointer(change[:path], field_mappings),
             value: convert_value(change[:new_value])
           }
         end
@@ -61,8 +61,11 @@ module PugClient
     #   json_pointer([:simulcast_targets])
     #   # => "/simulcastTargets"
     # @api private
-    def self.json_pointer(path_array)
-      "/#{path_array.map { |key| AttributeTranslator.camelize(key) }.join('/')}"
+    def self.json_pointer(path_array, field_mappings = {})
+      segments = path_array.map do |key|
+        field_mappings.key?(key) ? field_mappings[key] : AttributeTranslator.camelize(key)
+      end
+      "/#{segments.join('/')}"
     end
 
     # Convert value to API format
