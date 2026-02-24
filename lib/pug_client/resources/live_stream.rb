@@ -85,7 +85,7 @@ module PugClient
 
         body = {
           data: {
-            type: 'LiveStreams',
+            type: 'liveStreams',
             attributes: attributes
           }
         }
