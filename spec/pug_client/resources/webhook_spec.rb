@@ -328,9 +328,9 @@ RSpec.describe PugClient::Resources::Webhook do
   end
 
   describe 'ACTIONS' do
-    it 'contains all 13 webhook action strings' do
+    it 'contains all 14 webhook action strings' do
       expect(described_class::ACTIONS).to be_a(Array)
-      expect(described_class::ACTIONS.length).to eq(13)
+      expect(described_class::ACTIONS.length).to eq(14)
     end
 
     it 'includes video actions' do
@@ -342,7 +342,8 @@ RSpec.describe PugClient::Resources::Webhook do
     it 'includes livestream actions' do
       expect(described_class::ACTIONS).to include(
         'livestream.published', 'livestream.unpublished',
-        'livestream.disabled', 'livestream.enabled'
+        'livestream.disabled', 'livestream.enabled',
+        'livestream.edited'
       )
     end
 

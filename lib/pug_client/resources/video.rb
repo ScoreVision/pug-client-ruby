@@ -26,7 +26,7 @@ module PugClient
       # Attributes that cannot be modified after creation
       READ_ONLY_ATTRIBUTES = %i[
         id created_at modified_at duration
-        renditions playback_urls thumbnail_url playback
+        renditions source playback
         playback_start playback_stop
       ].freeze
 
@@ -212,6 +212,7 @@ module PugClient
 
         body = {
           data: {
+            type: 'videoCommands',
             attributes: api_attributes
           }
         }

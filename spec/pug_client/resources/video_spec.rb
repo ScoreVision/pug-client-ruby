@@ -345,6 +345,7 @@ RSpec.describe PugClient::Resources::Video do
       expect(client).to receive(:post)
         .with("namespaces/#{namespace_id}/videos/#{video_id}/commands", {
                 data: {
+                  type: 'videoCommands',
                   attributes: {
                     command: 'clip',
                     startTime: 5000,
@@ -365,6 +366,7 @@ RSpec.describe PugClient::Resources::Video do
       expect(client).to receive(:post)
         .with("namespaces/#{namespace_id}/videos/#{video_id}/commands", {
                 data: {
+                  type: 'videoCommands',
                   attributes: {
                     command: 'clip',
                     startTime: 5000,

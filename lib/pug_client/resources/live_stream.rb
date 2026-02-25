@@ -15,7 +15,6 @@ module PugClient
         stream_status
         stream_urls
         playback_urls
-        thumbnails
       ].freeze
 
       attr_reader :namespace_id

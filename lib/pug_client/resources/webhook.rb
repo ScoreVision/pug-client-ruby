@@ -23,6 +23,7 @@ module PugClient
       ACTIONS = %w[
         video.ready video.source.uploaded video.edited video.deleted
         livestream.published livestream.unpublished livestream.disabled livestream.enabled
+        livestream.edited
         simulcasttarget.created simulcasttarget.edited simulcasttarget.started
         simulcasttarget.stopped simulcasttarget.deleted
       ].freeze

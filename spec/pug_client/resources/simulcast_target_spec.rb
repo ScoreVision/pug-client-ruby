@@ -10,7 +10,7 @@ RSpec.describe PugClient::Resources::SimulcastTarget do
 
   let(:api_response) do
     build_api_response(
-      type: 'SimulcastTargets',
+      type: 'simulcastTargets',
       id: target_id,
       attributes: {
         'url' => rtmp_url,
@@ -30,7 +30,7 @@ RSpec.describe PugClient::Resources::SimulcastTarget do
     it 'creates a new simulcast target with URL' do
       expected_body = {
         data: {
-          type: 'SimulcastTargets',
+          type: 'simulcastTargets',
           attributes: {
             url: rtmp_url
           }
@@ -54,7 +54,7 @@ RSpec.describe PugClient::Resources::SimulcastTarget do
 
       expected_body = {
         data: {
-          type: 'SimulcastTargets',
+          type: 'simulcastTargets',
           attributes: {
             url: rtmp_url,
             metadata: metadata
@@ -137,7 +137,7 @@ RSpec.describe PugClient::Resources::SimulcastTarget do
         attributes: {
           data: {
             id: target_id,
-            type: 'SimulcastTargets',
+            type: 'simulcastTargets',
             attributes: { 'url' => long_url }
           }
         }

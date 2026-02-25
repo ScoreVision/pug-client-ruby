@@ -84,7 +84,7 @@ module PugClient
 
         body = {
           data: {
-            type: 'SimulcastTargets',
+            type: 'simulcastTargets',
             attributes: attributes
           }
         }

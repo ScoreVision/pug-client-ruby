@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    pug-client (1.0.0)
+    pug-client (1.0.1)
       faraday (>= 2.14, < 3)
 
 GEM
