@@ -1,22 +1,13 @@
 name: CI
 
+# Note the coverage gap: a commit pushed to a branch with no pull request open
+# yet matches neither trigger, so it runs no CI until the PR exists.
 on:
   pull_request:
   push:
     branches:
       - main
 
-# GitLab ran test/lint on every merge-request event AND on every branch push
-# (rules: `if: $CI_PIPELINE_SOURCE == "merge_request_event"` OR
-# `if: $CI_COMMIT_BRANCH`), with no top-level `workflow:` block to dedupe
-# them, so a push to a branch backing an open merge request produced two
-# GitLab pipelines for the same commit. Scoping `push:` to main avoids
-# reproducing that duplication, at the cost of a gap GitLab didn't have: a
-# commit pushed to a branch before any pull request is opened for it matches
-# neither `pull_request` (opened/synchronize/reopened only) nor `push`
-# (main only), so it runs no CI at all until a PR exists. Accepted here
-# because it matches the same trigger shape already established in
-# sv-cloud's ci.yml.
 concurrency:
   group: ci-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
@@ -25,33 +16,23 @@ permissions:
   contents: read
 
 jobs:
-  # GitLab's test and lint were already two separate jobs (both stage: test),
-  # each running the same before_script bundle install independently against
-  # the shared vendor/bundle cache. Kept as two GitHub jobs for the same
-  # reason: lint is allowed to fail (see allow_failure below) without
-  # affecting the test job's status.
   test:
     runs-on: ubuntu-latest
-    # Same image GitLab's `default: image: ruby:3.4` pulled, pinned to the
-    # exact patch in .ruby-version. A container image, not ruby/setup-ruby,
-    # because this repo's Actions policy is allowed_actions: "selected" and
-    # ruby/setup-ruby isn't on the allow-list (verified via
-    # actions/permissions/selected-actions) -- pulling a plain image needs no
-    # action allow-listing at all, and it mirrors GitLab's own `image:`
-    # mechanism exactly.
+    # A container image rather than ruby/setup-ruby: this repo's Actions policy
+    # is allowed_actions: "selected" and ruby/setup-ruby is not on the
+    # allow-list. Pulling a plain image needs no allow-listing. Pinned to the
+    # patch version in .ruby-version.
     container:
       image: ruby:3.4.5
     steps:
       - uses: actions/checkout@v4
 
-      # Reproduces GitLab's `default.cache: paths: [vendor/bundle]`.
       - uses: actions/cache@v4
         with:
           path: vendor/bundle
           key: bundle-${{ hashFiles('Gemfile.lock') }}
           restore-keys: bundle-
 
-      # GitLab's default.before_script, run identically in every job.
       - name: bundle install
         run: |
           ruby -v
@@ -62,9 +43,6 @@ jobs:
       - name: rspec
         run: bundle exec rspec --format documentation --format RspecJunitFormatter --out rspec.xml
 
-      # GitHub Actions has no native equivalent of GitLab's
-      # artifacts.reports.junit UI ingestion, so the JUnit file is uploaded as
-      # a plain artifact instead. `always()` matches GitLab's `when: always`.
       - name: Upload test report
         if: always()
         uses: actions/upload-artifact@v4
@@ -94,12 +72,10 @@ jobs:
           bundle config set --local path 'vendor/bundle'
           bundle install --jobs "$(nproc)"
 
-      # allow_failure: true in GitLab. Verified locally: with the repo's
-      # empty .rubocop.yml (full default cop set against code that predates
-      # RuboCop being turned on), rubocop currently reports 166 offenses
-      # across 69 files and exits 1, so this must not block merges.
-      # continue-on-error keeps the job green while the Checks UI still shows
-      # the step itself as failed.
+      # Non-blocking: .rubocop.yml is empty, so the full default cop set runs
+      # against code that predates RuboCop being turned on. It currently reports
+      # 166 offenses across 69 files and exits 1. The step shows as failed in the
+      # Checks UI while the job stays green.
       - name: rubocop
         continue-on-error: true
         run: bundle exec rubocop --format progress --format junit --out rubocop.xml
