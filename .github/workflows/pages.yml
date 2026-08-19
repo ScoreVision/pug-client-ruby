@@ -1,0 +1,73 @@
+name: Pages
+
+# GitLab's `pages: true` job built YARD docs on every push to the default
+# branch and GitLab Pages picked up the `public/` artifact automatically.
+# GitHub Pages instead needs an explicit build (this job) plus a separate
+# deploy job that calls actions/deploy-pages.
+#
+# NOT YET RUNNABLE AS-IS: this repo has never had GitHub Pages enabled
+# (confirmed: has_pages: false, GET /repos/ScoreVision/pug-client-ruby/pages
+# -> 404). actions/deploy-pages calls the Pages Deployments API, which
+# requires a Pages site already provisioned with build_type=workflow; it does
+# not create one. A repo admin has to do that once, out of band (Settings ->
+# Pages -> Build and deployment -> Source: GitHub Actions), before the deploy
+# job below will succeed. This workflow documents that requirement rather
+# than provisioning it.
+on:
+  push:
+    branches:
+      - main
+
+# Matches GitHub's own generated Pages-deploy template: one deployment at a
+# time, queued rather than cancelled, so an in-flight deploy-pages call is
+# never killed mid-upload and left in an inconsistent state.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # Same rationale as ci.yml: a container image sidesteps the
+    # allowed_actions: "selected" restriction that blocks ruby/setup-ruby.
+    container:
+      image: ruby:3.4.5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/cache@v4
+        with:
+          path: vendor/bundle
+          key: bundle-${{ hashFiles('Gemfile.lock') }}
+          restore-keys: bundle-
+
+      - name: bundle install
+        run: |
+          gem install bundler --no-document
+          bundle config set --local path 'vendor/bundle'
+          bundle install --jobs "$(nproc)"
+
+      - name: Generate YARD docs
+        run: bundle exec yard doc
+
+      # No `mv doc public` step here: GitLab Pages hard-requires the artifact
+      # directory to be named public/, but upload-pages-artifact accepts any
+      # path, so doc/ (what .yardopts already writes) is uploaded directly.
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: doc
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
