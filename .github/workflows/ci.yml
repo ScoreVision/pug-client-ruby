@@ -1,0 +1,90 @@
+name: CI
+
+# Note the coverage gap: a commit pushed to a branch with no pull request open
+# yet matches neither trigger, so it runs no CI until the PR exists.
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ci-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    # A container image rather than ruby/setup-ruby: this repo's Actions policy
+    # is allowed_actions: "selected" and ruby/setup-ruby is not on the
+    # allow-list. Pulling a plain image needs no allow-listing. Pinned to the
+    # patch version in .ruby-version.
+    container:
+      image: ruby:3.4.5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/cache@v4
+        with:
+          path: vendor/bundle
+          key: bundle-${{ hashFiles('Gemfile.lock') }}
+          restore-keys: bundle-
+
+      - name: bundle install
+        run: |
+          ruby -v
+          gem install bundler --no-document
+          bundle config set --local path 'vendor/bundle'
+          bundle install --jobs "$(nproc)"
+
+      - name: rspec
+        run: bundle exec rspec --format documentation --format RspecJunitFormatter --out rspec.xml
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rspec-report
+          path: rspec.xml
+          retention-days: 7
+          if-no-files-found: warn
+
+  lint:
+    runs-on: ubuntu-latest
+    container:
+      image: ruby:3.4.5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/cache@v4
+        with:
+          path: vendor/bundle
+          key: bundle-${{ hashFiles('Gemfile.lock') }}
+          restore-keys: bundle-
+
+      - name: bundle install
+        run: |
+          ruby -v
+          gem install bundler --no-document
+          bundle config set --local path 'vendor/bundle'
+          bundle install --jobs "$(nproc)"
+
+      # Non-blocking: .rubocop.yml is empty, so the full default cop set runs
+      # against code that predates RuboCop being turned on. It currently reports
+      # 166 offenses across 69 files and exits 1. The step shows as failed in the
+      # Checks UI while the job stays green.
+      - name: rubocop
+        continue-on-error: true
+        run: bundle exec rubocop --format progress --format junit --out rubocop.xml
+
+      - name: Upload lint report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rubocop-report
+          path: rubocop.xml
+          retention-days: 7
+          if-no-files-found: warn

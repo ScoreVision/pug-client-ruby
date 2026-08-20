@@ -1,0 +1,74 @@
+name: Pages
+
+# Requires GitHub Pages to be enabled for the repo with Source: GitHub Actions.
+# actions/deploy-pages calls the Pages Deployments API, which needs a site
+# already provisioned with build_type=workflow; the action cannot create one, so
+# until an admin does this once the deploy job fails.
+#
+# Triggered on CI completing rather than on push, so docs are only published for
+# a commit whose tests passed.
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [main]
+
+# One deployment at a time, queued rather than cancelled, so an in-flight
+# deploy-pages call is never killed mid-upload.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    # Container image for the same reason as ci.yml: ruby/setup-ruby is not on
+    # this repo's selected-actions allow-list.
+    container:
+      image: ruby:3.4.5
+    steps:
+      # workflow_run checks out the default branch by default, which would build
+      # stale docs if main moved while CI was running. Pin to the commit CI
+      # actually tested.
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - uses: actions/cache@v4
+        with:
+          path: vendor/bundle
+          key: bundle-${{ hashFiles('Gemfile.lock') }}
+          restore-keys: bundle-
+
+      - name: bundle install
+        run: |
+          gem install bundler --no-document
+          bundle config set --local path 'vendor/bundle'
+          bundle install --jobs "$(nproc)"
+
+      - name: Generate YARD docs
+        run: bundle exec yard doc
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: doc
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    # Scoped to this job so that build, which runs bundle install against a
+    # lockfile-resolved dependency tree, never holds the ability to call the
+    # Pages Deployments API or mint an OIDC token for this repo.
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
