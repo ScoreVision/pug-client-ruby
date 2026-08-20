@@ -135,7 +135,7 @@ RSpec.describe 'Client namespace integration' do
   end
 
   describe 'namespace resource operations' do
-    it 'allows chaining operations' do
+    it 'allows creating and reloading namespaces' do
       # Create namespace
       create_response = {
         data: {
@@ -153,10 +153,11 @@ RSpec.describe 'Client namespace integration' do
       namespace = client.create_namespace('test-namespace',
                                           metadata: { labels: { env: 'staging' } })
 
-      # Update namespace
-      namespace.metadata[:labels][:status] = 'active'
+      # Namespace save is not supported by the API
+      expect { namespace.save }.to raise_error(NotImplementedError)
 
-      patch_response = {
+      # Reload namespace
+      reload_response = {
         data: {
           id: 'test-namespace',
           attributes: {
@@ -165,15 +166,11 @@ RSpec.describe 'Client namespace integration' do
         }
       }
 
-      expect(client).to receive(:patch)
-        .with('namespaces/test-namespace', hash_including(
-                                             data: array_including(
-                                               hash_including(op: 'add', path: '/metadata/labels/status')
-                                             )
-                                           ))
-        .and_return(patch_response)
+      expect(client).to receive(:get)
+        .with('namespaces/test-namespace')
+        .and_return(reload_response)
 
-      expect(namespace.save).to be true
+      namespace.reload
       expect(namespace.metadata[:labels][:status]).to eq('active')
     end
   end

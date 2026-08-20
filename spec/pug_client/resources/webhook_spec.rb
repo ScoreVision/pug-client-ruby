@@ -327,6 +327,39 @@ RSpec.describe PugClient::Resources::Webhook do
     end
   end
 
+  describe 'ACTIONS' do
+    it 'contains all 14 webhook action strings' do
+      expect(described_class::ACTIONS).to be_a(Array)
+      expect(described_class::ACTIONS.length).to eq(14)
+    end
+
+    it 'includes video actions' do
+      expect(described_class::ACTIONS).to include(
+        'video.ready', 'video.source.uploaded', 'video.edited', 'video.deleted'
+      )
+    end
+
+    it 'includes livestream actions' do
+      expect(described_class::ACTIONS).to include(
+        'livestream.published', 'livestream.unpublished',
+        'livestream.disabled', 'livestream.enabled',
+        'livestream.edited'
+      )
+    end
+
+    it 'includes simulcast target actions' do
+      expect(described_class::ACTIONS).to include(
+        'simulcasttarget.created', 'simulcasttarget.edited',
+        'simulcasttarget.started', 'simulcasttarget.stopped',
+        'simulcasttarget.deleted'
+      )
+    end
+
+    it 'is frozen' do
+      expect(described_class::ACTIONS).to be_frozen
+    end
+  end
+
   describe 'dirty tracking' do
     let(:webhook) do
       described_class.new(client: client, namespace_id: namespace_id, attributes: api_response)

@@ -89,7 +89,11 @@ module PugClient
       url = @base_url
       # Build params hash to pass to client.get
       params = {}
-      params[:query] = @options[:query] if @options[:query]
+      params[:query] = @options[:query].dup if @options[:query]
+
+      # Support top-level :filter convenience (auto-lift into query params)
+      params[:query] ||= {}
+      params[:query][:filter] = @options[:filter] if @options[:filter]
 
       # Set default page size (needs to be under :query key for Connection)
       params[:query] ||= {}

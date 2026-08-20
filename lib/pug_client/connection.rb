@@ -323,7 +323,9 @@ module PugClient
       result = {}
 
       params.each do |key, value|
-        full_key = prefix ? "#{prefix}[#{key}]" : key.to_s
+        # Translate filter keys from snake_case to camelCase for the API
+        translated_key = prefix&.start_with?('filter') ? AttributeTranslator.camelize(key) : key
+        full_key = prefix ? "#{prefix}[#{translated_key}]" : translated_key.to_s
 
         if value.is_a?(Hash)
           result.merge!(flatten_params(value, full_key))

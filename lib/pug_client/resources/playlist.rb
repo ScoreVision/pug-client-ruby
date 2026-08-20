@@ -10,7 +10,7 @@ module PugClient
       READ_ONLY_ATTRIBUTES = %i[
         id
         created_at
-        updated_at
+        modified_at
         version
         playback
       ].freeze

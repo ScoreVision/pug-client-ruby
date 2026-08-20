@@ -251,7 +251,7 @@ module PugClient
     # @param name [String] Campaign display name (required, 2-256 chars)
     # @param slug [String] Campaign slug identifier (required, 1-32 chars, alphanumeric + dashes)
     # @param namespace [String] Namespace identifier (defaults to configured namespace)
-    # @param options [Hash] Optional parameters (preroll_video_id, postroll_video_id,
+    # @param options [Hash] Optional parameters (preroll_id, postroll_id,
     #   start_time, end_time, metadata)
     # @return [Resources::Campaign] Created campaign resource
     # @example

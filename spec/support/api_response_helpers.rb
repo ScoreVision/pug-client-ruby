@@ -77,16 +77,16 @@ module ApiResponseHelpers
   # Build common metadata timestamps
   #
   # @param created_at [String] ISO8601 timestamp (default: 2024-01-01T00:00:00Z)
-  # @param updated_at [String] ISO8601 timestamp (default: created_at value)
+  # @param modified_at [String] ISO8601 timestamp (default: created_at value)
   # @return [Hash] Metadata hash with camelCase keys
   #
   # @example
   #   build_metadata_timestamps
-  #   # => { 'createdAt' => '2024-01-01T00:00:00Z', 'updatedAt' => '2024-01-01T00:00:00Z' }
-  def build_metadata_timestamps(created_at: '2024-01-01T00:00:00Z', updated_at: nil)
+  #   # => { 'createdAt' => '2024-01-01T00:00:00Z', 'modifiedAt' => '2024-01-01T00:00:00Z' }
+  def build_metadata_timestamps(created_at: '2024-01-01T00:00:00Z', modified_at: nil)
     {
       'createdAt' => created_at,
-      'updatedAt' => updated_at || created_at
+      'modifiedAt' => modified_at || created_at
     }
   end
 

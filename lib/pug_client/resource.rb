@@ -30,6 +30,13 @@ module PugClient
     # Subclasses should override this to specify their read-only attributes
     READ_ONLY_ATTRIBUTES = [].freeze
 
+    # Maps Ruby attribute names to API field names when they differ from
+    # the standard snake_case → camelCase conversion.
+    # Subclasses should override this for fields with non-standard names.
+    # @example
+    #   FIELD_MAPPINGS = { start_time: 'start', end_time: 'end' }.freeze
+    FIELD_MAPPINGS = {}.freeze
+
     attr_reader :client, :id
 
     # Initialize a new resource
@@ -79,6 +86,16 @@ module PugClient
                  # Assume data is already a flat hash of attributes (already translated)
                  AttributeTranslator.from_api(data)
                end
+
+      # Apply reverse field mappings (e.g., API 'start' → Ruby :start_time)
+      reverse_mappings = self.class::FIELD_MAPPINGS.each_with_object({}) do |(ruby_name, api_name), map|
+        map[AttributeTranslator.underscore(api_name).to_sym] = ruby_name
+      end
+      unless reverse_mappings.empty?
+        parsed = parsed.each_with_object({}) do |(key, value), result|
+          result[reverse_mappings[key] || key] = value
+        end
+      end
 
       # Wrap hashes in TrackedHash for dirty tracking
       parsed.each do |key, value|
@@ -156,7 +173,7 @@ module PugClient
     def generate_patch_operations
       return [] unless changed?
 
-      PatchGenerator.generate(changes)
+      PatchGenerator.generate(changes, field_mappings: self.class::FIELD_MAPPINGS)
     end
 
     # Freeze resource after deletion to prevent further modifications

@@ -25,8 +25,9 @@ module PugClient
     class Video < Resource
       # Attributes that cannot be modified after creation
       READ_ONLY_ATTRIBUTES = %i[
-        id created_at updated_at duration started_at
-        renditions playback_urls thumbnail_url playback source
+        id created_at modified_at duration
+        renditions source playback
+        playback_start playback_stop
       ].freeze
 
       # Supported video content types for upload
@@ -72,10 +73,13 @@ module PugClient
       # @param client [Client] The API client
       # @param namespace_id [String] Namespace identifier
       # @param options [Hash] Optional parameters (query filters, pagination)
+      # @option options [Hash] :filter Filter parameters (snake_case keys auto-translate to camelCase)
       # @return [ResourceEnumerator] Lazy enumerator for videos
-      # @example
+      # @example Basic listing
       #   Video.all(client, 'my-namespace').each { |v| puts v.id }
       #   Video.all(client, 'my-namespace').first(10)
+      # @example With filters
+      #   Video.all(client, 'my-namespace', filter: { category: 'highlights' })
       def self.all(client, namespace_id, options = {})
         ResourceEnumerator.new(
           client: client,
@@ -208,6 +212,7 @@ module PugClient
 
         body = {
           data: {
+            type: 'videoCommands',
             attributes: api_attributes
           }
         }

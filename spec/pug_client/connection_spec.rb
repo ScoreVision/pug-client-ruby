@@ -196,6 +196,19 @@ RSpec.describe PugClient::Connection do
       expect(stub).to have_been_requested
     end
 
+    it 'translates snake_case filter keys to camelCase' do
+      stub = stub_request(:get, 'https://staging-api.video.scorevision.com/items')
+             .with(query: { 'filter[streamStatus]' => 'active', 'filter[createdAt]' => '2025-01-01' })
+             .to_return(
+               status: 200,
+               body: { data: [] }.to_json,
+               headers: { 'Content-Type' => 'application/vnd.api+json' }
+             )
+
+      client.get('items', query: { filter: { stream_status: 'active', created_at: '2025-01-01' } })
+      expect(stub).to have_been_requested
+    end
+
     it 'supports custom headers' do
       stub = stub_request(:get, 'https://staging-api.video.scorevision.com/items')
              .with(headers: { 'X-Custom-Header' => 'custom-value' })

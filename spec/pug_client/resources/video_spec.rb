@@ -345,6 +345,7 @@ RSpec.describe PugClient::Resources::Video do
       expect(client).to receive(:post)
         .with("namespaces/#{namespace_id}/videos/#{video_id}/commands", {
                 data: {
+                  type: 'videoCommands',
                   attributes: {
                     command: 'clip',
                     startTime: 5000,
@@ -365,6 +366,7 @@ RSpec.describe PugClient::Resources::Video do
       expect(client).to receive(:post)
         .with("namespaces/#{namespace_id}/videos/#{video_id}/commands", {
                 data: {
+                  type: 'videoCommands',
                   attributes: {
                     command: 'clip',
                     startTime: 5000,
@@ -554,7 +556,7 @@ RSpec.describe PugClient::Resources::Video do
         attributes: {
           id: video_id,
           created_at: '2025-01-01T00:00:00Z',
-          updated_at: '2025-01-01T00:00:00Z',
+          modified_at: '2025-01-01T00:00:00Z',
           duration: 120_000,
           renditions: [{ format: 'hls' }],
           playback_urls: { hls: 'https://example.com/video.m3u8' },
@@ -579,6 +581,18 @@ RSpec.describe PugClient::Resources::Video do
       expect do
         video.renditions = []
       end.to raise_error(PugClient::ValidationError, /Cannot modify read-only attribute: renditions/)
+    end
+
+    it 'prevents modification of playback_start' do
+      expect do
+        video.playback_start = 1000
+      end.to raise_error(PugClient::ValidationError, /Cannot modify read-only attribute: playback_start/)
+    end
+
+    it 'prevents modification of playback_stop' do
+      expect do
+        video.playback_stop = 5000
+      end.to raise_error(PugClient::ValidationError, /Cannot modify read-only attribute: playback_stop/)
     end
 
     it 'allows reading read-only attributes' do

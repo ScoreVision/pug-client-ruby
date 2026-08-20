@@ -9,7 +9,7 @@ RSpec.describe PugClient::Resources::LiveStream do
 
   let(:api_response) do
     build_api_response(
-      type: 'LiveStreams',
+      type: 'liveStreams',
       id: livestream_id,
       attributes: {
         'streamStatus' => 'idle',
@@ -28,7 +28,7 @@ RSpec.describe PugClient::Resources::LiveStream do
       api_response = {
         data: {
           id: livestream_id,
-          type: 'LiveStreams',
+          type: 'liveStreams',
           attributes: {
             'streamStatus' => 'idle'
           }
@@ -39,7 +39,7 @@ RSpec.describe PugClient::Resources::LiveStream do
         "namespaces/#{namespace_id}/livestreams",
         {
           data: {
-            type: 'LiveStreams',
+            type: 'liveStreams',
             attributes: {}
           }
         }
@@ -60,12 +60,12 @@ RSpec.describe PugClient::Resources::LiveStream do
         "namespaces/#{namespace_id}/livestreams",
         {
           data: {
-            type: 'LiveStreams',
+            type: 'liveStreams',
             attributes: {
               startedAt: '2024-01-01T12:00:00Z',
               metadata: {
                 labels: { event: 'championship' },
-                annotations: { gameId: '12345' }
+                annotations: { game_id: '12345' }
               },
               location: location,
               simulcastTargets: %w[target-1 target-2]
@@ -75,7 +75,7 @@ RSpec.describe PugClient::Resources::LiveStream do
       ).and_return({
                      data: {
                        id: livestream_id,
-                       type: 'LiveStreams',
+                       type: 'liveStreams',
                        attributes: { 'status' => 'idle' }
                      }
                    })
@@ -132,7 +132,7 @@ RSpec.describe PugClient::Resources::LiveStream do
       api_data = {
         data: {
           id: livestream_id,
-          type: 'LiveStreams',
+          type: 'liveStreams',
           attributes: {
             'streamStatus' => 'active',
             'createdAt' => '2024-01-01T00:00:00Z'
@@ -403,7 +403,7 @@ RSpec.describe PugClient::Resources::LiveStream do
           playback_urls: { hls: 'https://playback.example.com/stream.m3u8' },
           thumbnails: ['https://example.com/thumb1.jpg'],
           created_at: '2024-01-01T00:00:00Z',
-          updated_at: '2024-01-02T00:00:00Z'
+          modified_at: '2024-01-02T00:00:00Z'
         }
       )
     end
